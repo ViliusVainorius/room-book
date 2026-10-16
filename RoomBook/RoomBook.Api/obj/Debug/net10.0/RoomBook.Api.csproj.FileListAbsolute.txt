@@ -38,10 +38,10 @@ D:\Code\C#\room-book\RoomBook\RoomBook.Api\obj\Debug\net10.0\staticwebassets.bui
 D:\Code\C#\room-book\RoomBook\RoomBook.Api\obj\Debug\net10.0\staticwebassets.development.json
 D:\Code\C#\room-book\RoomBook\RoomBook.Api\obj\Debug\net10.0\staticwebassets.build.endpoints.json
 D:\Code\C#\room-book\RoomBook\RoomBook.Api\obj\Debug\net10.0\swae.build.ex.cache
-D:\Code\C#\room-book\RoomBook\RoomBook.Api\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
 D:\Code\C#\room-book\RoomBook\RoomBook.Api\obj\Debug\net10.0\RoomBook.11516B12.Up2Date
 D:\Code\C#\room-book\RoomBook\RoomBook.Api\obj\Debug\net10.0\RoomBook.Api.dll
 D:\Code\C#\room-book\RoomBook\RoomBook.Api\obj\Debug\net10.0\refint\RoomBook.Api.dll
 D:\Code\C#\room-book\RoomBook\RoomBook.Api\obj\Debug\net10.0\RoomBook.Api.pdb
 D:\Code\C#\room-book\RoomBook\RoomBook.Api\obj\Debug\net10.0\RoomBook.Api.genruntimeconfig.cache
 D:\Code\C#\room-book\RoomBook\RoomBook.Api\obj\Debug\net10.0\ref\RoomBook.Api.dll
+D:\Code\C#\room-book\RoomBook\RoomBook.Api\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt

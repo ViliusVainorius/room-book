@@ -3,12 +3,20 @@
   "WorkspaceRootPath": "D:\\Code\\C#\\room-book\\RoomBook\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A1B10CD6-FC75-1CA3-D13F-DB419DCCC501}|RoomBook.Tests\\RoomBook.Unit.Tests.csproj|d:\\code\\c#\\room-book\\roombook\\roombook.tests\\services\\cancelreservationtests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A1B10CD6-FC75-1CA3-D13F-DB419DCCC501}|RoomBook.Tests\\RoomBook.Unit.Tests.csproj|solutionrelative:roombook.tests\\services\\cancelreservationtests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{CC009411-BAE2-3994-046B-71570B14DAC9}|RoomBook.Api\\RoomBook.Api.csproj|d:\\code\\c#\\room-book\\roombook\\roombook.api\\services\\reservationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CC009411-BAE2-3994-046B-71570B14DAC9}|RoomBook.Api\\RoomBook.Api.csproj|solutionrelative:roombook.api\\services\\reservationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{CC009411-BAE2-3994-046B-71570B14DAC9}|RoomBook.Api\\RoomBook.Api.csproj|d:\\code\\c#\\room-book\\roombook\\roombook.api\\controllers\\reservationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CC009411-BAE2-3994-046B-71570B14DAC9}|RoomBook.Api\\RoomBook.Api.csproj|solutionrelative:roombook.api\\controllers\\reservationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CC009411-BAE2-3994-046B-71570B14DAC9}|RoomBook.Api\\RoomBook.Api.csproj|d:\\code\\c#\\room-book\\roombook\\roombook.api\\resources\\strings.resx||{81828910-B8B3-4D2B-99A3-067027C180C1}",
+      "RelativeMoniker": "D:0:0:{CC009411-BAE2-3994-046B-71570B14DAC9}|RoomBook.Api\\RoomBook.Api.csproj|solutionrelative:roombook.api\\resources\\strings.resx||{81828910-B8B3-4D2B-99A3-067027C180C1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A1B10CD6-FC75-1CA3-D13F-DB419DCCC501}|RoomBook.Tests\\RoomBook.Unit.Tests.csproj|d:\\code\\c#\\room-book\\roombook\\roombook.tests\\services\\cancelreservationtests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A1B10CD6-FC75-1CA3-D13F-DB419DCCC501}|RoomBook.Tests\\RoomBook.Unit.Tests.csproj|solutionrelative:roombook.tests\\services\\cancelreservationtests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{CC009411-BAE2-3994-046B-71570B14DAC9}|RoomBook.Api\\RoomBook.Api.csproj|d:\\code\\c#\\room-book\\roombook\\roombook.api\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -29,10 +37,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{CC009411-BAE2-3994-046B-71570B14DAC9}|RoomBook.Api\\RoomBook.Api.csproj|d:\\code\\c#\\room-book\\roombook\\roombook.api\\dtos\\roomutilizationdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CC009411-BAE2-3994-046B-71570B14DAC9}|RoomBook.Api\\RoomBook.Api.csproj|solutionrelative:roombook.api\\dtos\\roomutilizationdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CC009411-BAE2-3994-046B-71570B14DAC9}|RoomBook.Api\\RoomBook.Api.csproj|d:\\code\\c#\\room-book\\roombook\\roombook.api\\services\\reservationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CC009411-BAE2-3994-046B-71570B14DAC9}|RoomBook.Api\\RoomBook.Api.csproj|solutionrelative:roombook.api\\services\\reservationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -42,15 +46,27 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 9,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Strings.resx",
+              "DocumentMoniker": "D:\\Code\\C#\\room-book\\RoomBook\\RoomBook.Api\\Resources\\Strings.resx",
+              "RelativeDocumentMoniker": "RoomBook.Api\\Resources\\Strings.resx",
+              "ToolTip": "D:\\Code\\C#\\room-book\\RoomBook\\RoomBook.Api\\Resources\\Strings.resx",
+              "RelativeToolTip": "RoomBook.Api\\Resources\\Strings.resx",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001005|",
+              "WhenOpened": "2026-10-16T20:49:57.648Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 3,
               "Title": "CancelReservationTests.cs",
               "DocumentMoniker": "D:\\Code\\C#\\room-book\\RoomBook\\RoomBook.Tests\\Services\\CancelReservationTests.cs",
               "RelativeDocumentMoniker": "RoomBook.Tests\\Services\\CancelReservationTests.cs",
@@ -63,7 +79,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "UsersController.cs",
               "DocumentMoniker": "D:\\Code\\C#\\room-book\\RoomBook\\RoomBook.Api\\Controllers\\UsersController.cs",
               "RelativeDocumentMoniker": "RoomBook.Api\\Controllers\\UsersController.cs",
@@ -71,12 +87,11 @@
               "RelativeToolTip": "RoomBook.Api\\Controllers\\UsersController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-16T19:17:14.523Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-10-16T19:17:14.523Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 5,
               "Title": "RoomsController.cs",
               "DocumentMoniker": "D:\\Code\\C#\\room-book\\RoomBook\\RoomBook.Api\\Controllers\\RoomsController.cs",
               "RelativeDocumentMoniker": "RoomBook.Api\\Controllers\\RoomsController.cs",
@@ -89,7 +104,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 6,
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\Code\\C#\\room-book\\RoomBook\\RoomBook.Api\\Program.cs",
               "RelativeDocumentMoniker": "RoomBook.Api\\Program.cs",
@@ -101,7 +116,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 7,
               "Title": "RoomUtilizationService.cs",
               "DocumentMoniker": "D:\\Code\\C#\\room-book\\RoomBook\\RoomBook.Api\\Services\\RoomUtilizationService.cs",
               "RelativeDocumentMoniker": "RoomBook.Api\\Services\\RoomUtilizationService.cs",
@@ -113,7 +128,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 8,
               "Title": "RoomUtilizationDto.cs",
               "DocumentMoniker": "D:\\Code\\C#\\room-book\\RoomBook\\RoomBook.Api\\DTOs\\RoomUtilizationDto.cs",
               "RelativeDocumentMoniker": "RoomBook.Api\\DTOs\\RoomUtilizationDto.cs",
@@ -131,20 +146,20 @@
               "RelativeDocumentMoniker": "RoomBook.Api\\Controllers\\ReservationsController.cs",
               "ToolTip": "D:\\Code\\C#\\room-book\\RoomBook\\RoomBook.Api\\Controllers\\ReservationsController.cs",
               "RelativeToolTip": "RoomBook.Api\\Controllers\\ReservationsController.cs",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAAAN4AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAJsAAAAAAAAAAADgv6sAAAAWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-10-16T13:54:28.743Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 0,
               "Title": "ReservationService.cs",
               "DocumentMoniker": "D:\\Code\\C#\\room-book\\RoomBook\\RoomBook.Api\\Services\\ReservationService.cs",
               "RelativeDocumentMoniker": "RoomBook.Api\\Services\\ReservationService.cs",
               "ToolTip": "D:\\Code\\C#\\room-book\\RoomBook\\RoomBook.Api\\Services\\ReservationService.cs",
               "RelativeToolTip": "RoomBook.Api\\Services\\ReservationService.cs",
-              "ViewState": "AgIAAI0AAAAAAAAAAAAjwKwAAAAyAAAAAAAAAA==",
+              "ViewState": "AgIAAA0BAAAAAAAAAADgvyMBAAArAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-10-16T13:43:12.036Z",
               "EditorCaption": ""

@@ -83,7 +83,7 @@ public static class DbInitializer
             var austeja = await context.Users
                 .FirstAsync(u => u.FirstName == "Austeja");
 
-            var now = DateTime.Now;
+            var now = DateTime.UtcNow;
 
             var reservations = new List<Reservation>
             {
@@ -109,13 +109,41 @@ public static class DbInitializer
                 },
                 new()
                 {
+                    // Ran 30 of its 60 scheduled minutes: the usage
+                    // report shows 50% for this room.
                     RoomId = roomA.Id,
                     OrganizerId = austeja.Id,
                     Title = "Previous Team Meeting",
                     StartDateTime = now.AddDays(-3).Date.AddHours(10),
                     EndDateTime = now.AddDays(-3).Date.AddHours(11),
+                    ActualStartDateTime = now.AddDays(-3).Date.AddHours(10),
+                    ActualEndDateTime = now.AddDays(-3).Date.AddHours(10)
+                        .AddMinutes(30),
                     AttendeesCount = 3,
                     Status = ReservationStatus.Completed
+                },
+                new()
+                {
+                    // Cancelled meetings do not block the room.
+                    RoomId = roomB.Id,
+                    OrganizerId = jonas.Id,
+                    Title = "Cancelled Weekly Sync",
+                    StartDateTime = now.AddDays(-2).Date.AddHours(13),
+                    EndDateTime = now.AddDays(-2).Date.AddHours(14),
+                    AttendeesCount = 5,
+                    Status = ReservationStatus.Cancelled
+                },
+                new()
+                {
+                    // No-show: booked but never held, so the usage
+                    // report shows booked time with zero actual use.
+                    RoomId = roomB.Id,
+                    OrganizerId = austeja.Id,
+                    Title = "Never Held Meeting",
+                    StartDateTime = now.AddDays(-1).Date.AddHours(15),
+                    EndDateTime = now.AddDays(-1).Date.AddHours(16),
+                    AttendeesCount = 4,
+                    Status = ReservationStatus.Booked
                 }
             };
 

@@ -71,8 +71,7 @@
               "RelativeToolTip": "RoomBook.Api\\Controllers\\UsersController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-16T19:17:14.523Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-10-16T19:17:14.523Z"
             },
             {
               "$type": "Document",
@@ -84,8 +83,7 @@
               "RelativeToolTip": "RoomBook.Api\\Controllers\\RoomsController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAEoAAAAlAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-16T14:21:02.877Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-10-16T14:21:02.877Z"
             },
             {
               "$type": "Document",
@@ -133,8 +131,7 @@
               "RelativeToolTip": "RoomBook.Api\\Controllers\\ReservationsController.cs",
               "ViewState": "AgIAAAwAAAAAAAAAAAAAAN4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-16T13:54:28.743Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-10-16T13:54:28.743Z"
             },
             {
               "$type": "Document",
@@ -146,8 +143,7 @@
               "RelativeToolTip": "RoomBook.Api\\Services\\ReservationService.cs",
               "ViewState": "AgIAAI0AAAAAAAAAAAAjwKwAAAAyAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-16T13:43:12.036Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-10-16T13:43:12.036Z"
             }
           ]
         }

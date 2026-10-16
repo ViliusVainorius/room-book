@@ -67,7 +67,8 @@ public class RoomsControllerTests
 
         var controller = new RoomsController(
             context,
-            new RoomUtilizationService(context));
+            new RoomUtilizationService(context),
+            TimeProvider.System);
 
         return (controller, context);
     }

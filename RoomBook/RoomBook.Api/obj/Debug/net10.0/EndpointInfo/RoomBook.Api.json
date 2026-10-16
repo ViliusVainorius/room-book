@@ -315,7 +315,10 @@
             "name": "equipment",
             "in": "query",
             "schema": {
-              "$ref": "#/components/schemas/EquipmentType"
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/EquipmentType"
+              }
             }
           }
         ],

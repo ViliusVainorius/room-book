@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RoomBook.Api.Configuration;
+using RoomBook.Api.DTOs;
 using RoomBook.Api.Services;
 using RoomBook.Infrastructure.Context;
 using System.Text.Json.Serialization;
@@ -13,6 +15,39 @@ builder.Services.AddControllers()
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
+
+// Single error contract: booking-rule failures and model validation
+// both surface as { code, message } for the front end.
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var violations = context.ModelState
+            .SelectMany(entry => entry.Value!.Errors.Select(error => new
+            {
+                entry.Key,
+                Message = string.IsNullOrWhiteSpace(error.ErrorMessage)
+                    ? error.Exception?.Message
+                    : error.ErrorMessage
+            }))
+            .Where(violation => !string.IsNullOrWhiteSpace(violation.Message))
+            .ToList();
+
+        var message = violations.Count > 0
+            ? string.Join(" ", violations.Select(v => $"{v.Key}: {v.Message}"))
+            : "The request payload is invalid.";
+
+        return new BadRequestObjectResult(
+            new ApiErrorResponse("VALIDATION_ERROR", message));
+    };
+});
+
+// The React front end runs on its own origin during development.
+builder.Services.AddCors(options =>
+    options.AddPolicy("Frontend", policy => policy
+        .AllowAnyOrigin()
+        .AllowAnyHeader()
+        .AllowAnyMethod()));
 
 builder.Services.AddDbContext<RoomBookDbContext>(options =>
     options.UseInMemoryDatabase("RoomBookDatabase"));
@@ -46,6 +81,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("Frontend");
+
 app.MapControllers();
 
 app.Run();
+
+// Makes the entry point visible to WebApplicationFactory-based
+// integration tests.
+public partial class Program;

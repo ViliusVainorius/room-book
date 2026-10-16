@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RoomBook.Api.DTOs;
 using RoomBook.Api.Resources;
@@ -10,7 +10,10 @@ namespace RoomBook.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class RoomsController(RoomBookDbContext context, RoomUtilizationService utilizationService) : ControllerBase
+public class RoomsController(
+    RoomBookDbContext context,
+    RoomUtilizationService utilizationService,
+    TimeProvider timeProvider) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IEnumerable<RoomDto>>> GetRooms(
@@ -62,11 +65,11 @@ public class RoomsController(RoomBookDbContext context, RoomUtilizationService u
 
     [HttpGet("utilization")]
     public async Task<ActionResult<IReadOnlyList<RoomUtilizationDto>>>
-    GetUtilization(
+        GetUtilization(
         [FromQuery] DateTime? from,
         [FromQuery] DateTime? to)
     {
-        var reportEnd = to ?? DateTime.UtcNow;
+        var reportEnd = to ?? timeProvider.GetUtcNow().UtcDateTime;
         var reportStart = from ?? reportEnd.AddDays(-30);
 
         if (reportStart >= reportEnd)

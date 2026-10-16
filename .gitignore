@@ -1,0 +1,23 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+
+# Test results
+TestResults/
+*.trx
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (for the upcoming React frontend)
+node_modules/
+dist/

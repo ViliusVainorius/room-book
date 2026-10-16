@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using RoomBook.Api.Configuration;
 using RoomBook.Api.DTOs;
@@ -24,43 +24,15 @@ public class ReservationService
         _timeProvider = timeProvider;
     }
 
-    public async Task<ReservationCreationResult> CreateAsync(
+    public async Task<ReservationResult> CreateAsync(
         CreateReservationRequest request)
     {
         var now = _timeProvider.GetUtcNow().UtcDateTime;
 
-        // Validate the time range.
-        if (request.EndDateTime <= request.StartDateTime)
+        var timingError = ValidateTiming(request, now);
+        if (timingError is not null)
         {
-            return ReservationCreationResult.Failure(
-                "INVALID_TIME_RANGE",
-                Strings.INVALID_TIME_RANGE);
-        }
-
-        // R4: Start must be in the future.
-        if (request.StartDateTime <= now)
-        {
-            return ReservationCreationResult.Failure(
-                "START_NOT_IN_FUTURE",
-                Strings.START_NOT_IN_FUTURE);
-        }
-
-        // R1: Maximum reservation duration.
-        if (request.EndDateTime - request.StartDateTime >
-            TimeSpan.FromDays(_options.MaxDurationDays))
-        {
-            return ReservationCreationResult.Failure(
-                "MAX_DURATION_EXCEEDED",
-                string.Format(Strings.MAX_DURATION_EXCEEDED, _options.MaxDurationDays));
-        }
-
-        // R6: Booking horizon.
-        if (request.StartDateTime >
-            now.AddDays(_options.MaxBookingHorizonDays))
-        {
-            return ReservationCreationResult.Failure(
-                "BOOKING_HORIZON_EXCEEDED",
-                string.Format(Strings.BOOKING_HORIZON_EXCEEDED, _options.MaxBookingHorizonDays));
+            return timingError;
         }
 
         var room = await _context.Rooms
@@ -68,7 +40,7 @@ public class ReservationService
 
         if (room is null)
         {
-            return ReservationCreationResult.Failure(
+            return ReservationResult.Failure(
                 "ROOM_NOT_FOUND",
                 Strings.ROOM_NOT_FOUND);
         }
@@ -78,53 +50,21 @@ public class ReservationService
 
         if (!organizerExists)
         {
-            return ReservationCreationResult.Failure(
+            return ReservationResult.Failure(
                 "ORGANIZER_NOT_FOUND",
                 Strings.ORGANIZER_NOT_FOUND);
         }
 
-        // R7: Only active rooms can be booked.
-        if (!room.IsActive)
+        var eligibilityError = ValidateRoomEligibility(room, request);
+        if (eligibilityError is not null)
         {
-            return ReservationCreationResult.Failure(
-                "ROOM_INACTIVE",
-                Strings.ROOM_INACTIVE);
+            return eligibilityError;
         }
 
-        // R5: The room must have sufficient capacity.
-        if (request.AttendeesCount > room.Capacity)
+        var conflictError = await FindConflictAsync(request);
+        if (conflictError is not null)
         {
-            return ReservationCreationResult.Failure(
-                "ROOM_CAPACITY_EXCEEDED",
-                string.Format(Strings.ROOM_CAPACITY_EXCEEDED, room.Capacity));
-        }
-
-        // R2: A room cannot have overlapping booked reservations.
-        var roomConflict = await _context.Reservations.AnyAsync(r =>
-            r.RoomId == request.RoomId &&
-            r.Status == ReservationStatus.Booked &&
-            r.StartDateTime < request.EndDateTime &&
-            r.EndDateTime > request.StartDateTime);
-
-        if (roomConflict)
-        {
-            return ReservationCreationResult.Failure(
-                "ROOM_BOOKING_CONFLICT",
-                Strings.ROOM_BOOKING_CONFLICT);
-        }
-
-        // R3: An organizer cannot organize overlapping meetings.
-        var organizerConflict = await _context.Reservations.AnyAsync(r =>
-            r.OrganizerId == request.OrganizerId &&
-            r.Status == ReservationStatus.Booked &&
-            r.StartDateTime < request.EndDateTime &&
-            r.EndDateTime > request.StartDateTime);
-
-        if (organizerConflict)
-        {
-            return ReservationCreationResult.Failure(
-                "ORGANIZER_BOOKING_CONFLICT",
-                Strings.ORGANIZER_BOOKING_CONFLICT);
+            return conflictError;
         }
 
         var reservation = new Reservation
@@ -141,24 +81,24 @@ public class ReservationService
         _context.Reservations.Add(reservation);
         await _context.SaveChangesAsync();
 
-        return ReservationCreationResult.Success(reservation);
+        return ReservationResult.Success(reservation);
     }
 
-    public async Task<ReservationOperationResult> CancelAsync(int id)
+    public async Task<ReservationResult> CancelAsync(int id)
     {
         var reservation = await _context.Reservations
             .FirstOrDefaultAsync(r => r.Id == id);
 
         if (reservation is null)
         {
-            return ReservationOperationResult.Failure(
+            return ReservationResult.Failure(
                 "RESERVATION_NOT_FOUND",
                 Strings.RESERVATION_NOT_FOUND);
         }
 
         if (reservation.Status != ReservationStatus.Booked)
         {
-            return ReservationOperationResult.Failure(
+            return ReservationResult.Failure(
                 "CANCEL_RESERVATION_NOT_BOOKED",
                 Strings.CANCEL_RESERVATION_NOT_BOOKED);
         }
@@ -167,24 +107,30 @@ public class ReservationService
 
         await _context.SaveChangesAsync();
 
-        return ReservationOperationResult.Success(reservation);
+        return ReservationResult.Success(reservation);
     }
 
-    public async Task<ReservationOperationResult> CompleteAsync(int id)
+    /// <summary>
+    /// Ends a meeting early. A booked meeting counts as underway once
+    /// its scheduled start is strictly in the past; if it was never
+    /// started explicitly, the scheduled start is recorded as the
+    /// actual start so the usage report keeps realistic durations.
+    /// </summary>
+    public async Task<ReservationResult> CompleteAsync(int id)
     {
         var reservation = await _context.Reservations
             .FirstOrDefaultAsync(r => r.Id == id);
 
         if (reservation is null)
         {
-            return ReservationOperationResult.Failure(
+            return ReservationResult.Failure(
                 "RESERVATION_NOT_FOUND",
                 Strings.RESERVATION_NOT_FOUND);
         }
 
         if (reservation.Status != ReservationStatus.Booked)
         {
-            return ReservationOperationResult.Failure(
+            return ReservationResult.Failure(
                 "COMPLETE_RESERVATION_NOT_BOOKED",
                 Strings.COMPLETE_RESERVATION_NOT_BOOKED);
         }
@@ -197,7 +143,7 @@ public class ReservationService
             // before it actually started.
             if (now < reservation.ActualStartDateTime.Value)
             {
-                return ReservationOperationResult.Failure(
+                return ReservationResult.Failure(
                     "MEETING_NOT_STARTED",
                     Strings.MEETING_NOT_STARTED);
             }
@@ -210,14 +156,11 @@ public class ReservationService
             // meeting.
             if (now <= reservation.StartDateTime)
             {
-                return ReservationOperationResult.Failure(
+                return ReservationResult.Failure(
                     "COMPLETE_MEETING_NOT_STARTED",
                     Strings.COMPLETE_MEETING_NOT_STARTED);
             }
 
-            // The meeting was never started explicitly; assume it ran
-            // from its scheduled start so the usage report still
-            // reflects real usage durations.
             reservation.ActualStartDateTime = reservation.StartDateTime;
         }
 
@@ -226,31 +169,31 @@ public class ReservationService
 
         await _context.SaveChangesAsync();
 
-        return ReservationOperationResult.Success(reservation);
+        return ReservationResult.Success(reservation);
     }
 
-    public async Task<ReservationOperationResult> StartAsync(int id)
+    public async Task<ReservationResult> StartAsync(int id)
     {
         var reservation = await _context.Reservations
             .FirstOrDefaultAsync(r => r.Id == id);
 
         if (reservation is null)
         {
-            return ReservationOperationResult.Failure(
+            return ReservationResult.Failure(
                 "RESERVATION_NOT_FOUND",
                 Strings.RESERVATION_NOT_FOUND);
         }
 
         if (reservation.Status != ReservationStatus.Booked)
         {
-            return ReservationOperationResult.Failure(
+            return ReservationResult.Failure(
                 "START_RESERVATION_NOT_BOOKED",
                 Strings.START_RESERVATION_NOT_BOOKED);
         }
 
         if (reservation.ActualStartDateTime.HasValue)
         {
-            return ReservationOperationResult.Failure(
+            return ReservationResult.Failure(
                 "MEETING_ALREADY_STARTED",
                 Strings.MEETING_ALREADY_STARTED);
         }
@@ -259,14 +202,14 @@ public class ReservationService
 
         if (now < reservation.StartDateTime)
         {
-            return ReservationOperationResult.Failure(
+            return ReservationResult.Failure(
                 "START_MEETING_NOT_STARTED",
                 Strings.START_MEETING_NOT_STARTED);
         }
 
         if (now >= reservation.EndDateTime)
         {
-            return ReservationOperationResult.Failure(
+            return ReservationResult.Failure(
                 "START_MEETING_TIME_EXPIRED",
                 Strings.START_MEETING_TIME_EXPIRED);
         }
@@ -275,6 +218,106 @@ public class ReservationService
 
         await _context.SaveChangesAsync();
 
-        return ReservationOperationResult.Success(reservation);
+        return ReservationResult.Success(reservation);
+    }
+
+    // R1 maximum duration, R4 valid time range, R6 booking horizon.
+    private ReservationResult? ValidateTiming(
+        CreateReservationRequest request,
+        DateTime now)
+    {
+        if (request.EndDateTime <= request.StartDateTime)
+        {
+            return ReservationResult.Failure(
+                "INVALID_TIME_RANGE",
+                Strings.INVALID_TIME_RANGE);
+        }
+
+        if (request.StartDateTime <= now)
+        {
+            return ReservationResult.Failure(
+                "START_NOT_IN_FUTURE",
+                Strings.START_NOT_IN_FUTURE);
+        }
+
+        if (request.EndDateTime - request.StartDateTime >
+            TimeSpan.FromDays(_options.MaxDurationDays))
+        {
+            return ReservationResult.Failure(
+                "MAX_DURATION_EXCEEDED",
+                string.Format(
+                    Strings.MAX_DURATION_EXCEEDED,
+                    _options.MaxDurationDays));
+        }
+
+        if (request.StartDateTime >
+            now.AddDays(_options.MaxBookingHorizonDays))
+        {
+            return ReservationResult.Failure(
+                "BOOKING_HORIZON_EXCEEDED",
+                string.Format(
+                    Strings.BOOKING_HORIZON_EXCEEDED,
+                    _options.MaxBookingHorizonDays));
+        }
+
+        return null;
+    }
+
+    // R5 capacity, R7 active rooms only.
+    private static ReservationResult? ValidateRoomEligibility(
+        Room room,
+        CreateReservationRequest request)
+    {
+        if (!room.IsActive)
+        {
+            return ReservationResult.Failure(
+                "ROOM_INACTIVE",
+                Strings.ROOM_INACTIVE);
+        }
+
+        if (request.AttendeesCount > room.Capacity)
+        {
+            return ReservationResult.Failure(
+                "ROOM_CAPACITY_EXCEEDED",
+                string.Format(
+                    Strings.ROOM_CAPACITY_EXCEEDED,
+                    room.Capacity));
+        }
+
+        return null;
+    }
+
+    // R2 no overlapping room bookings, R3 no overlapping organizer
+    // bookings. Cancelled reservations block neither.
+    private async Task<ReservationResult?> FindConflictAsync(
+        CreateReservationRequest request)
+    {
+        var roomConflict = await _context.Reservations.AnyAsync(r =>
+            r.RoomId == request.RoomId &&
+            r.Status == ReservationStatus.Booked &&
+            r.StartDateTime < request.EndDateTime &&
+            r.EndDateTime > request.StartDateTime);
+
+        if (roomConflict)
+        {
+            return ReservationResult.Failure(
+                "ROOM_BOOKING_CONFLICT",
+                Strings.ROOM_BOOKING_CONFLICT);
+        }
+
+        var organizerConflict = await _context.Reservations.AnyAsync(r =>
+            r.OrganizerId == request.OrganizerId &&
+            r.Status == ReservationStatus.Booked &&
+            r.StartDateTime < request.EndDateTime &&
+            r.EndDateTime > request.StartDateTime);
+
+        if (organizerConflict)
+        {
+            return ReservationResult.Failure(
+                "ORGANIZER_BOOKING_CONFLICT",
+                Strings.ORGANIZER_BOOKING_CONFLICT);
+        }
+
+        return null;
     }
 }

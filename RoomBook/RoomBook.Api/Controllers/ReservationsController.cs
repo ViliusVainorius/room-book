@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RoomBook.Api.DTOs;
 using RoomBook.Api.Resources;
@@ -11,7 +11,7 @@ namespace RoomBook.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public class ReservationsController
-    (RoomBookDbContext context, 
+    (RoomBookDbContext context,
     ReservationService reservationService)
     : ControllerBase
 {
@@ -27,11 +27,9 @@ public class ReservationsController
             endDate.HasValue &&
             startDate.Value > endDate.Value)
         {
-            return BadRequest(new
-            {
-                Code = "INVALID_DATE_RANGE",
-                Message = "Start date must be before or equal to end date."
-            });
+            return BadRequest(new ApiErrorResponse(
+                "INVALID_DATE_RANGE",
+                "Start date must be before or equal to end date."));
         }
 
         var query = context.Reservations.AsQueryable();
@@ -65,26 +63,10 @@ public class ReservationsController
         if (endDate.HasValue)
         {
             query = query.Where(
-                reservation =>
-                    reservation.StartDateTime <= endDate.Value);
+                reservation => reservation.StartDateTime <= endDate.Value);
         }
 
-        var reservations = await query
-            .Select(reservation => new ReservationDto(
-                reservation.Id,
-                reservation.RoomId,
-                reservation.Room.Name,
-                reservation.OrganizerId,
-                reservation.Organizer.FirstName,
-                reservation.Organizer.LastName,
-                reservation.Title,
-                reservation.StartDateTime,
-                reservation.EndDateTime,
-                reservation.AttendeesCount,
-                reservation.Status,
-                reservation.ActualEndDateTime,
-                reservation.ActualStartDateTime
-            ))
+        var reservations = await WithDetails(query)
             .ToListAsync();
 
         return Ok(reservations);
@@ -92,63 +74,28 @@ public class ReservationsController
 
     [HttpPost]
     public async Task<ActionResult<ReservationDto>> CreateReservation(
-    CreateReservationRequest request)
+        CreateReservationRequest request)
     {
         var result = await reservationService.CreateAsync(request);
 
         if (!result.IsSuccess)
         {
-            return BadRequest(new ApiErrorResponse(
-                result.ErrorCode!,
-                result.ErrorMessage!));
+            return Failure(result);
         }
 
-        var reservation = result.Reservation!;
-
-        var room = await context.Rooms.FindAsync(reservation.RoomId);
-        var user = await context.Users.FindAsync(reservation.OrganizerId);
-
-        var response = new ReservationDto(
-            reservation.Id,
-            reservation.RoomId,
-            room!.Name,
-            reservation.OrganizerId,
-            user!.FirstName,
-            user!.LastName,
-            reservation.Title,
-            reservation.StartDateTime,
-            reservation.EndDateTime,
-            reservation.AttendeesCount,
-            reservation.Status,
-            reservation.ActualEndDateTime,
-            reservation.ActualStartDateTime);
+        var reservationId = result.Reservation!.Id;
+        var response = await FindDtoAsync(reservationId);
 
         return CreatedAtAction(
             nameof(GetReservationById),
-            new { id = reservation.Id },
+            new { id = reservationId },
             response);
     }
 
     [HttpGet("{id:int}")]
     public async Task<ActionResult<ReservationDto>> GetReservationById(int id)
     {
-        var reservation = await context.Reservations
-            .Where(r => r.Id == id)
-            .Select(r => new ReservationDto(
-                r.Id,
-                r.RoomId,
-                r.Room.Name,
-                r.OrganizerId,
-                r.Organizer.FirstName,
-                r.Organizer.LastName,
-                r.Title,
-                r.StartDateTime,
-                r.EndDateTime,
-                r.AttendeesCount,
-                r.Status,
-                r.ActualEndDateTime,
-                r.ActualStartDateTime))
-            .FirstOrDefaultAsync();
+        var reservation = await FindDtoAsync(id);
 
         if (reservation is null)
         {
@@ -165,19 +112,9 @@ public class ReservationsController
     {
         var result = await reservationService.CancelAsync(id);
 
-        if (!result.IsSuccess)
-        {
-            var error = new ApiErrorResponse(
-                result.ErrorCode!,
-                result.ErrorMessage!);
-
-            if (result.ErrorCode == "RESERVATION_NOT_FOUND")
-                return NotFound(error);
-
-            return BadRequest(error);
-        }
-
-        return await GetReservationById(id);
+        return result.IsSuccess
+            ? await GetReservationById(id)
+            : Failure(result);
     }
 
     [HttpPatch("{id:int}/complete")]
@@ -185,19 +122,9 @@ public class ReservationsController
     {
         var result = await reservationService.CompleteAsync(id);
 
-        if (!result.IsSuccess)
-        {
-            var error = new ApiErrorResponse(
-                result.ErrorCode!,
-                result.ErrorMessage!);
-
-            if (result.ErrorCode == "RESERVATION_NOT_FOUND")
-                return NotFound(error);
-
-            return BadRequest(error);
-        }
-
-        return await GetReservationById(id);
+        return result.IsSuccess
+            ? await GetReservationById(id)
+            : Failure(result);
     }
 
     [HttpPatch("{id:int}/start")]
@@ -205,18 +132,45 @@ public class ReservationsController
     {
         var result = await reservationService.StartAsync(id);
 
-        if (!result.IsSuccess)
-        {
-            var error = new ApiErrorResponse(
-                result.ErrorCode!,
-                result.ErrorMessage!);
-
-            if (result.ErrorCode == "RESERVATION_NOT_FOUND")
-                return NotFound(error);
-
-            return BadRequest(error);
-        }
-
-        return await GetReservationById(id);
+        return result.IsSuccess
+            ? await GetReservationById(id)
+            : Failure(result);
     }
+
+    private ActionResult Failure(ReservationResult result)
+    {
+        var error = new ApiErrorResponse(
+            result.ErrorCode!,
+            result.ErrorMessage!);
+
+        return result.ErrorCode == "RESERVATION_NOT_FOUND"
+            ? NotFound(error)
+            : BadRequest(error);
+    }
+
+    // The projection must stay inside the IQueryable so EF can
+    // translate it; calling a helper on the materialized entity would
+    // hit null Room/Organizer navigations.
+    private IQueryable<ReservationDto> WithDetails(
+        IQueryable<Reservation> reservations) =>
+        reservations.Select(reservation => new ReservationDto(
+            reservation.Id,
+            reservation.RoomId,
+            reservation.Room.Name,
+            reservation.OrganizerId,
+            reservation.Organizer.FirstName,
+            reservation.Organizer.LastName,
+            reservation.Title,
+            reservation.StartDateTime,
+            reservation.EndDateTime,
+            reservation.AttendeesCount,
+            reservation.Status,
+            reservation.ActualEndDateTime,
+            reservation.ActualStartDateTime));
+
+    private async Task<ReservationDto?> FindDtoAsync(int id) =>
+        await WithDetails(
+                context.Reservations.Where(
+                    reservation => reservation.Id == id))
+            .FirstOrDefaultAsync();
 }
