@@ -1,0 +1,13 @@
+D:\Code\C#\room-book\RoomBook\RoomBook.Domain\bin\Debug\net10.0\RoomBook.Domain.deps.json
+D:\Code\C#\room-book\RoomBook\RoomBook.Domain\bin\Debug\net10.0\RoomBook.Domain.dll
+D:\Code\C#\room-book\RoomBook\RoomBook.Domain\bin\Debug\net10.0\RoomBook.Domain.pdb
+D:\Code\C#\room-book\RoomBook\RoomBook.Domain\obj\Debug\net10.0\RoomBook.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\Code\C#\room-book\RoomBook\RoomBook.Domain\obj\Debug\net10.0\RoomBook.Domain.AssemblyInfoInputs.cache
+D:\Code\C#\room-book\RoomBook\RoomBook.Domain\obj\Debug\net10.0\RoomBook.Domain.AssemblyInfo.cs
+D:\Code\C#\room-book\RoomBook\RoomBook.Domain\obj\Debug\net10.0\RoomBook.Domain.csproj.CoreCompileInputs.cache
+D:\Code\C#\room-book\RoomBook\RoomBook.Domain\obj\Debug\net10.0\RoomBook.Domain.sourcelink.json
+D:\Code\C#\room-book\RoomBook\RoomBook.Domain\obj\Debug\net10.0\RoomBook.Domain.dll
+D:\Code\C#\room-book\RoomBook\RoomBook.Domain\obj\Debug\net10.0\refint\RoomBook.Domain.dll
+D:\Code\C#\room-book\RoomBook\RoomBook.Domain\obj\Debug\net10.0\RoomBook.Domain.pdb
+D:\Code\C#\room-book\RoomBook\RoomBook.Domain\obj\Debug\net10.0\ref\RoomBook.Domain.dll
+D:\Code\C#\room-book\RoomBook\RoomBook.Domain\obj\Debug\net10.0\RoomBook.F7B9F134.Up2Date

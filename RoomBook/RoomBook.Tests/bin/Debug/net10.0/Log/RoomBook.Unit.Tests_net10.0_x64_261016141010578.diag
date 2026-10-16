@@ -1,0 +1,27 @@
+2026-10-16T14:10:10.5833765+00:00 Microsoft.Testing.Platform.Builder.TestApplication INFORMATION Version: 2.5.1+0bf77e3aedbf86f1fa16220bc951d3b52ba56763
+2026-10-16T14:10:10.5836093+00:00 Microsoft.Testing.Platform.Builder.TestApplication INFORMATION Logging mode: asynchronous
+2026-10-16T14:10:10.5841057+00:00 Microsoft.Testing.Platform.Builder.TestApplication INFORMATION Logging level: Information
+2026-10-16T14:10:10.5841079+00:00 Microsoft.Testing.Platform.Builder.TestApplication INFORMATION CreateBuilderAsync entry time: 14:10:10.571
+2026-10-16T14:10:10.5841432+00:00 Microsoft.Testing.Platform.Builder.TestApplication INFORMATION PID: 30968
+2026-10-16T14:10:10.5842123+00:00 Microsoft.Testing.Platform.Builder.TestApplication INFORMATION Runtime information: win-x64 - .NET 10.0.12
+2026-10-16T14:10:10.5842176+00:00 Microsoft.Testing.Platform.Builder.TestApplication INFORMATION Runtime location: C:\Program Files\dotnet\shared\Microsoft.NETCore.App\10.0.12\System.Private.CoreLib.dll
+2026-10-16T14:10:10.5842235+00:00 Microsoft.Testing.Platform.Builder.TestApplication INFORMATION IsDynamicCodeSupported: True
+2026-10-16T14:10:10.5842629+00:00 Microsoft.Testing.Platform.Builder.TestApplication INFORMATION Test module: D:\Code\C#\room-book\RoomBook\RoomBook.Tests\bin\Debug\net10.0\RoomBook.Unit.Tests.dll
+2026-10-16T14:10:10.5842671+00:00 Microsoft.Testing.Platform.Builder.TestApplication INFORMATION Command line arguments: '--server --diagnostic --diagnostic-verbosity Information --diagnostic-output-directory D:\Code\C#\room-book\RoomBook\RoomBook.Tests\bin\Debug\net10.0\Log --results-directory D:\Code\C#\room-book\RoomBook\TestResults --client-port 50728'
+2026-10-16T14:10:10.5847251+00:00 Microsoft.Testing.Platform.Builder.TestApplication INFORMATION TESTINGPLATFORM_DEFAULT_HANG_TIMEOUT: ''
+2026-10-16T14:10:10.6081266+00:00 Microsoft.Testing.Platform.Hosts.TestHostBuilder INFORMATION Setting RegisterEnvironmentVariablesConfigurationSource: 'True'
+2026-10-16T14:10:10.6135919+00:00 Microsoft.Testing.Platform.Hosts.TestHostBuilder INFORMATION Setting PlatformExitProcessOnUnhandledException: 'False', config file: False environment variable: 
+2026-10-16T14:10:10.7482333+00:00 Microsoft.Testing.Platform.Requests.TestHostTestFrameworkInvoker INFORMATION Test framework UID: '30ea7c6e-dd24-4152-a360-1387158cd41d' Version: '4.0.2' DisplayName: 'xUnit.net v3 Microsoft.Testing.Platform test framework' Description: 'xUnit.net v3 Microsoft.Testing.Platform test framework'
+2026-10-16T14:10:10.7534687+00:00 xUnit.net INFORMATION xUnit.net v3 In-Process Runner v4.0.2+0c7aa4991f (64-bit .NET 10.0.12)
+2026-10-16T14:10:10.7821321+00:00 xUnit.net INFORMATION   Discovering: RoomBook.Unit.Tests
+2026-10-16T14:10:10.8068864+00:00 xUnit.net INFORMATION   Discovered:  RoomBook.Unit.Tests
+2026-10-16T14:10:10.8158986+00:00 xUnit.net INFORMATION   Starting:    RoomBook.Unit.Tests
+2026-10-16T14:10:11.4191950+00:00 xUnit.net ERROR     RoomBook.Unit.Tests.ReservationServiceTests.CompleteAsync_StartedMeeting_RecordsActualEndTime [FAIL]
+2026-10-16T14:10:11.4194055+00:00 xUnit.net INFORMATION       Expected result.IsSuccess to be True, but found False.
+2026-10-16T14:10:11.4196504+00:00 xUnit.net INFORMATION       Stack Trace:
+2026-10-16T14:10:11.4198794+00:00 xUnit.net INFORMATION            at FluentAssertions.Primitives.BooleanAssertions`1.BeTrue(String because, Object[] becauseArgs)
+2026-10-16T14:10:11.4198930+00:00 xUnit.net INFORMATION         D:\Code\C#\room-book\RoomBook\RoomBook.Tests\ReservationServiceTests.cs(367,0): at RoomBook.Unit.Tests.ReservationServiceTests.CompleteAsync_StartedMeeting_RecordsActualEndTime()
+2026-10-16T14:10:11.4198943+00:00 xUnit.net INFORMATION         --- End of stack trace from previous location ---
+2026-10-16T14:10:11.4391027+00:00 xUnit.net INFORMATION   Finished:    RoomBook.Unit.Tests (ID = 'c2817db837e5631ac8f2461d69118a280b2ed01e1591e2846dbdce9c5a07b16f')
+2026-10-16T14:10:11.4419568+00:00 xUnit.net INFORMATION === TEST EXECUTION SUMMARY ===
+2026-10-16T14:10:11.4444902+00:00 xUnit.net INFORMATION    RoomBook.Unit.Tests  Total: 20, Errors: 0, Failed: 1, Skipped: 0, Not Run: 0, Time: 0,625s
