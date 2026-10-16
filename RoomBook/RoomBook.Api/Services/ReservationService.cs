@@ -189,20 +189,36 @@ public class ReservationService
                 Strings.COMPLETE_RESERVATION_NOT_BOOKED);
         }
 
-        if (!reservation.ActualStartDateTime.HasValue)
-        {
-            return ReservationOperationResult.Failure(
-                "COMPLETE_MEETING_NOT_STARTED",
-                Strings.COMPLETE_MEETING_NOT_STARTED);
-        }
-
         var now = _timeProvider.GetUtcNow().UtcDateTime;
 
-        if (now < reservation.StartDateTime)
+        if (reservation.ActualStartDateTime.HasValue)
         {
-            return ReservationOperationResult.Failure(
-                "MEETING_NOT_STARTED",
-                Strings.MEETING_NOT_STARTED);
+            // Guard against clock anomalies: the meeting cannot end
+            // before it actually started.
+            if (now < reservation.ActualStartDateTime.Value)
+            {
+                return ReservationOperationResult.Failure(
+                    "MEETING_NOT_STARTED",
+                    Strings.MEETING_NOT_STARTED);
+            }
+        }
+        else
+        {
+            // Ending a meeting requires it to have run, so its
+            // scheduled start must be strictly in the past; ending
+            // at the exact start instant would be a zero-length
+            // meeting.
+            if (now <= reservation.StartDateTime)
+            {
+                return ReservationOperationResult.Failure(
+                    "COMPLETE_MEETING_NOT_STARTED",
+                    Strings.COMPLETE_MEETING_NOT_STARTED);
+            }
+
+            // The meeting was never started explicitly; assume it ran
+            // from its scheduled start so the usage report still
+            // reflects real usage durations.
+            reservation.ActualStartDateTime = reservation.StartDateTime;
         }
 
         reservation.ActualEndDateTime = now;

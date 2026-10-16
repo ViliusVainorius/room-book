@@ -16,7 +16,7 @@ public class RoomsController(RoomBookDbContext context, RoomUtilizationService u
     public async Task<ActionResult<IEnumerable<RoomDto>>> GetRooms(
         [FromQuery] int? minCapacity,
         [FromQuery] string? floor,
-        [FromQuery] EquipmentType? equipment)
+        [FromQuery] List<EquipmentType>? equipment)
     {
         var query = context.Rooms.AsQueryable();
 
@@ -32,10 +32,19 @@ public class RoomsController(RoomBookDbContext context, RoomUtilizationService u
                 room => room.Floor == floor);
         }
 
-        if (equipment.HasValue)
+        if (equipment is { Count: > 0 })
         {
-            query = query.Where(
-                room => room.Equipment.Contains(equipment.Value));
+            // A room must provide every selected equipment item,
+            // e.g. ?equipment=Projector&equipment=VideoConferencing.
+            // One filter per item keeps the expression translatable
+            // by EF (All(...) over a collection property is not).
+            foreach (var requiredItem in equipment.Distinct())
+            {
+                var item = requiredItem;
+
+                query = query.Where(
+                    room => room.Equipment.Contains(item));
+            }
         }
 
         var rooms = await query
