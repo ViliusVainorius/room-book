@@ -1,62 +1,65 @@
-import { useEffect, useState } from "react";
-// import heroImg from "./assets/hero.png";
-// import reactLogo from "./assets/react.svg";
-// import viteLogo from "./assets/vite.svg";
+import { useState } from "react";
 import "./App.css";
-import Header from "./components/Header";
-import Sidebar from "./components/Sidebar";
+// import Rooms from "./components/pages/Rooms";
+// import Users from "./components/pages/Users";
+import Reservations from "./components/pages/Reservations";
+// import Header from "./components/Header";
+// import Sidebar from "./components/Sidebar";
 
-type Reservation = {
-  id: string;
-  roomName: string;
-};
+const pages = ["Dashboard", "Reservations", "Rooms", "Users", "Utilization"];
 
 function App() {
-  const [data, setData] = useState<Reservation[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchDataForPosts = async () => {
-      try {
-        const response = await fetch(`https://localhost:7101/api/Reservations`);
-        if (!response.ok) {
-          throw new Error(`HTTP error: Status ${response.status}`);
-        }
-        const postsData = await response.json();
-        setData(postsData);
-        console.log(postsData);
-        setError(null);
-      } catch (err) {
-        setError(err.message);
-        setData([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDataForPosts();
-  }, []);
+  const [currentPage, setCurrentPage] = useState("Dashboard");
 
   return (
-    <>
-      <Header />
-      <Sidebar />
-      <h1>Reservations</h1>
+    <div className="d-flex min-vh-100 bg-light">
+      {/* Sidebar */}
+      <aside className="bg-dark text-white p-3 roombook-sidebar">
+        <h4 className="mb-4">RoomBook</h4>
 
-      {/* <div>{error}</div> */}
-      {data.length === 0 ? (
-        <p>No reservations found. - {error}</p>
-      ) : (
-        <ul>
-          {data.map((reservation) => (
-            <li key={reservation.id}>
-              ID: {reservation.id} — Room: {reservation.roomName}
-            </li>
+        <nav className="nav flex-column gap-2">
+          {pages.map((page) => (
+            <button
+              key={page}
+              className={`nav-link text-start ${
+                currentPage === page
+                  ? "active bg-primary text-white"
+                  : "text-white"
+              }`}
+              onClick={() => setCurrentPage(page)}
+            >
+              {page}
+            </button>
           ))}
-        </ul>
-      )}
-    </>
+        </nav>
+      </aside>
+
+      {/* Main content */}
+      <main className="flex-grow-1 p-4">
+        <header className="mb-4">
+          <h1>{currentPage}</h1>
+          <p className="text-secondary">
+            Manage your meeting rooms and bookings.
+          </p>
+        </header>
+
+        <section className="card border-0 shadow-sm">
+          <div className="card-body p-4">
+            {/* <h5>{currentPage}</h5> */}
+
+            {/* <p className="mb-0">
+              {currentPage === "Dashboard"
+                ? "Welcome to RoomBook."
+                : `${currentPage} page content will go here.`}
+            </p> */}
+
+            {/* <Rooms /> */}
+            {/* <Users /> */}
+            <Reservations />
+          </div>
+        </section>
+      </main>
+    </div>
   );
 }
 
