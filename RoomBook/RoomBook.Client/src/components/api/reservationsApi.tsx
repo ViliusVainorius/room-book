@@ -1,4 +1,16 @@
+import type { Reservation } from "../constants/ReservationType";
+
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
+// The API stores and compares UTC instants (seed data is UTC too), while
+// "datetime-local" inputs give us local wall-clock strings without an
+// offset. Send real instants so validation, completion and date filters
+// all line up with the server clock.
+function toUtcIso(localDateTime: string): string {
+  const parsed = new Date(localDateTime);
+
+  return Number.isNaN(parsed.getTime()) ? localDateTime : parsed.toISOString();
+}
 
 export type ReservationFilters = {
   roomId?: number;
@@ -27,11 +39,11 @@ export async function getReservations(
   }
 
   if (filters.startDate) {
-    params.set("startDate", filters.startDate);
+    params.set("startDate", toUtcIso(filters.startDate));
   }
 
   if (filters.endDate) {
-    params.set("endDate", filters.endDate);
+    params.set("endDate", toUtcIso(filters.endDate));
   }
 
   const query = params.toString();
@@ -65,12 +77,40 @@ export async function createReservation(
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(request),
+    body: JSON.stringify({
+      ...request,
+      startDateTime: toUtcIso(request.startDateTime),
+      endDateTime: toUtcIso(request.endDateTime),
+    }),
   });
 
   if (!response.ok) {
     throw new Error(await getErrorMessage(response));
   }
+}
+
+export async function cancelReservation(id: number): Promise<Reservation> {
+  const response = await fetch(`${apiUrl}/api/reservations/${id}/cancel`, {
+    method: "PATCH",
+  });
+
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response));
+  }
+
+  return (await response.json()) as Reservation;
+}
+
+export async function completeReservation(id: number): Promise<Reservation> {
+  const response = await fetch(`${apiUrl}/api/reservations/${id}/complete`, {
+    method: "PATCH",
+  });
+
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response));
+  }
+
+  return (await response.json()) as Reservation;
 }
 
 type ApiErrorResponse = {

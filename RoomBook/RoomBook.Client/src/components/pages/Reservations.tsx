@@ -1,7 +1,12 @@
 import { useState } from "react";
-import { type ReservationFilters } from "../api/reservationsApi";
+import {
+  cancelReservation,
+  completeReservation,
+  type ReservationFilters,
+} from "../api/reservationsApi";
 import ReservationsTable from "../tables/ReservationsTable";
 import type { ReservationStatus } from "../constants/ReservationStatus";
+import type { Reservation } from "../constants/ReservationType";
 import ReservationFiltersPanel from "../filters/ReservationFiltersPanel";
 import { useReservations } from "../hooks/useReservations";
 import CreateReservation from "../CreateReservation";
@@ -26,6 +31,11 @@ function Reservations() {
   const [endDate, setEndDate] = useState("");
 
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<{
+    id: number;
+    kind: "cancel" | "complete";
+  } | null>(null);
 
   const rooms = [
     ...new Map(allReservations.map((r) => [r.roomId, r.roomName])).entries(),
@@ -62,19 +72,73 @@ function Reservations() {
     void refreshReservations({}, true);
   }
 
+  async function runReservationAction(
+    reservation: Reservation,
+    kind: "cancel" | "complete",
+    request: () => Promise<unknown>,
+    successMessage: string,
+    fallbackErrorMessage: string,
+  ) {
+    setPendingAction({ id: reservation.id, kind });
+    setActionError(null);
+    setSuccessMessage(null);
+
+    try {
+      await request();
+
+      setSuccessMessage(successMessage);
+
+      // Keep the active filters and the unfiltered room/organizer options.
+      await refreshReservations(lastRequestedFilters);
+    } catch (err) {
+      setActionError(
+        err instanceof Error ? err.message : fallbackErrorMessage,
+      );
+    } finally {
+      setPendingAction(null);
+    }
+  }
+
+  function handleCancel(reservation: Reservation) {
+    void runReservationAction(
+      reservation,
+      "cancel",
+      () => cancelReservation(reservation.id),
+      `Reservation "${reservation.title}" was cancelled.`,
+      "Failed to cancel the reservation. Please try again.",
+    );
+  }
+
+  function handleComplete(reservation: Reservation) {
+    void runReservationAction(
+      reservation,
+      "complete",
+      () => completeReservation(reservation.id),
+      `Meeting "${reservation.title}" was ended early.`,
+      "Failed to end the meeting. Please try again.",
+    );
+  }
+
   return (
     <>
-      <h2 className="mb-4">Reservations</h2>
-
       {successMessage && (
         <div className="alert alert-success" role="alert">
           {successMessage}
         </div>
       )}
+      {actionError && (
+        <div className="alert alert-danger" role="alert">
+          {actionError}
+        </div>
+      )}
       <button
         type="button"
         className="btn btn-primary mb-3"
-        onClick={() => setIsCreateModalOpen(true)}
+        onClick={() => {
+          setSuccessMessage(null);
+          setActionError(null);
+          setIsCreateModalOpen(true);
+        }}
       >
         New reservation
       </button>
@@ -122,7 +186,17 @@ function Reservations() {
       ) : error ? null : reservations.length === 0 ? (
         <p className="text-secondary">No reservations match your filters.</p>
       ) : (
-        <ReservationsTable reservations={reservations} />
+        <ReservationsTable
+          reservations={reservations}
+          onCancel={handleCancel}
+          onComplete={handleComplete}
+          cancellingReservationId={
+            pendingAction?.kind === "cancel" ? pendingAction.id : null
+          }
+          completingReservationId={
+            pendingAction?.kind === "complete" ? pendingAction.id : null
+          }
+        />
       )}
     </>
   );

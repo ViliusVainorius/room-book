@@ -1,4 +1,4 @@
-import type { ReservationStatus } from "./tables/ReservationsTable";
+import type { ReservationStatus } from "./constants/ReservationStatus";
 
 type Props = {
   status: ReservationStatus;

@@ -84,8 +84,6 @@ function Rooms() {
 
   return (
     <>
-      <h2 className="mb-4">Meeting Rooms</h2>
-
       <form className="row g-3 mb-4">
         <div className="col-md-4">
           <label htmlFor="minCapacity" className="form-label">
