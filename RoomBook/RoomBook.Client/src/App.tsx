@@ -6,6 +6,7 @@ import Sidebar from "./components/pages/Sidebar";
 import Reservations from "./components/pages/Reservations";
 import Rooms from "./components/pages/Rooms";
 import Users from "./components/pages/Users";
+import UsageReport from "./components/pages/UsageReport";
 import { NAV_ITEMS, type PageId } from "./components/pages/navigation";
 
 // Every navigation item must have a page component here, so adding a new
@@ -13,6 +14,7 @@ import { NAV_ITEMS, type PageId } from "./components/pages/navigation";
 const pageComponents: Record<PageId, ComponentType> = {
   reservations: Reservations,
   rooms: Rooms,
+  "usage-report": UsageReport,
   users: Users,
 };
 

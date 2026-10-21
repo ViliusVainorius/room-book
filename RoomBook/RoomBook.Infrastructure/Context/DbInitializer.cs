@@ -122,6 +122,18 @@ public static class DbInitializer
                     AttendeesCount = 3,
                     Status = ReservationStatus.Completed
                 },
+                                new()
+                {
+                    // Ran 30 of its 60 scheduled minutes: the usage
+                    // report shows 50% for this room.
+                    RoomId = roomA.Id,
+                    OrganizerId = austeja.Id,
+                    Title = "Previous Team Meeting",
+                    StartDateTime = now.AddDays(-30).Date.AddHours(10),
+                    EndDateTime = now.AddDays(-30).Date.AddHours(11),
+                    AttendeesCount = 3,
+                    Status = ReservationStatus.Completed
+                },
                 new()
                 {
                     // Cancelled meetings do not block the room.
