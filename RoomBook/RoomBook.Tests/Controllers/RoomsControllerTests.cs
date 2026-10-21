@@ -1,6 +1,8 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using RoomBook.Api.Configuration;
 using RoomBook.Api.Controllers;
 using RoomBook.Api.DTOs;
 using RoomBook.Api.Services;
@@ -12,7 +14,8 @@ namespace RoomBook.Unit.Tests.Controllers;
 
 public class RoomsControllerTests
 {
-    private static (RoomsController Controller, RoomBookDbContext Context) CreateSut()
+    private static (RoomsController Controller, RoomBookDbContext Context)
+        CreateSut(int? defaultWindowDays = null)
     {
         var options = new DbContextOptionsBuilder<RoomBookDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -68,6 +71,11 @@ public class RoomsControllerTests
         var controller = new RoomsController(
             context,
             new RoomUtilizationService(context),
+            new RoomUsageReportPdfService(),
+            Options.Create(new UtilizationReportOptions
+            {
+                DefaultWindowDays = defaultWindowDays ?? 30
+            }),
             TimeProvider.System);
 
         return (controller, context);
@@ -245,6 +253,89 @@ public class RoomsControllerTests
             var result = await controller.GetUtilization(moment, moment);
 
             result.Result.Should().BeOfType<BadRequestObjectResult>();
+        }
+    }
+
+    [Fact]
+    public async Task GetUtilization_NoDateRange_UsesConfiguredDefaultWindow()
+    {
+        // A 7-day default window instead of the standard 30.
+        var (controller, context) = CreateSut(defaultWindowDays: 7);
+        using (context)
+        {
+            // Completed 10 days ago: outside the configured window.
+            context.Reservations.Add(new Reservation
+            {
+                RoomId = 1,
+                OrganizerId = 1,
+                Title = "Old Meeting",
+                StartDateTime = DateTime.UtcNow.AddDays(-10),
+                EndDateTime = DateTime.UtcNow.AddDays(-10).AddHours(1),
+                AttendeesCount = 3,
+                Status = ReservationStatus.Completed
+            });
+
+            // Completed 2 days ago: inside the configured window.
+            context.Reservations.Add(new Reservation
+            {
+                RoomId = 1,
+                OrganizerId = 1,
+                Title = "Recent Meeting",
+                StartDateTime = DateTime.UtcNow.AddDays(-2),
+                EndDateTime = DateTime.UtcNow.AddDays(-2).AddHours(1),
+                AttendeesCount = 3,
+                Status = ReservationStatus.Completed
+            });
+
+            await context.SaveChangesAsync();
+
+            var result = await controller.GetUtilization(null, null);
+
+            var okResult = result.Result.Should()
+                .BeOfType<OkObjectResult>().Subject;
+
+            var report = okResult.Value.Should()
+                .BeAssignableTo<IReadOnlyList<RoomUtilizationDto>>().Subject;
+
+            var roomA = report.Single(r => r.RoomId == 1);
+
+            // Only the recent meeting is inside the 7-day window.
+            roomA.ScheduledHours.Should().Be(1);
+        }
+    }
+
+    [Fact]
+    public async Task ExportUtilization_DefaultWindow_ReturnsPdfFile()
+    {
+        var (controller, context) = CreateSut();
+        using (context)
+        {
+            var result = await controller.ExportUtilization(null, null);
+
+            var file = result.Should()
+                .BeOfType<FileContentResult>().Subject;
+
+            file.ContentType.Should().Be("application/pdf");
+            file.FileDownloadName.Should().Be("room-usage-report.pdf");
+
+            // A PDF document starts with the %PDF magic bytes.
+            file.FileContents.Should().NotBeEmpty();
+            file.FileContents.Take(4)
+                .Should().Equal((byte)'%', (byte)'P', (byte)'D', (byte)'F');
+        }
+    }
+
+    [Fact]
+    public async Task ExportUtilization_InvalidRange_ReturnsBadRequest()
+    {
+        var (controller, context) = CreateSut();
+        using (context)
+        {
+            var moment = DateTime.UtcNow;
+
+            var result = await controller.ExportUtilization(moment, moment);
+
+            result.Should().BeOfType<BadRequestObjectResult>();
         }
     }
 }

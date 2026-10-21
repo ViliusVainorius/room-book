@@ -58,9 +58,13 @@ builder.Services.AddSwaggerGen();
 builder.Services.Configure<BookingOptions>(
     builder.Configuration.GetSection("Booking"));
 
+builder.Services.Configure<UtilizationReportOptions>(
+    builder.Configuration.GetSection("UtilizationReport"));
+
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<ReservationService>();
 builder.Services.AddScoped<RoomUtilizationService>();
+builder.Services.AddScoped<RoomUsageReportPdfService>();
 
 var app = builder.Build();
 

@@ -47,3 +47,24 @@ export async function getUtilization(
 
   return (await response.json()) as RoomUtilization[];
 }
+
+// The PDF is rendered by the backend from the same utilization data, so
+// the browser only downloads and saves the returned file.
+export async function downloadUtilizationReportPdf(): Promise<void> {
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  const response = await fetch(`${API_BASE_URL}/api/rooms/utilization/export`);
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to export the usage report. HTTP status: ${response.status}`,
+    );
+  }
+
+  const blobUrl = URL.createObjectURL(await response.blob());
+  const link = document.createElement("a");
+  link.href = blobUrl;
+  link.download = "room-usage-report.pdf";
+  link.click();
+  URL.revokeObjectURL(blobUrl);
+}

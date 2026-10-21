@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+  downloadUtilizationReportPdf,
   getUtilization,
   type RoomUtilization,
 } from "../api/roomsApi";
@@ -31,6 +32,23 @@ function UsageReport() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+
+  async function handleExportPdf() {
+    setIsExporting(true);
+    setExportError(null);
+
+    try {
+      await downloadUtilizationReportPdf();
+    } catch (err) {
+      setExportError(
+        err instanceof Error ? err.message : "An unexpected error occurred.",
+      );
+    } finally {
+      setIsExporting(false);
+    }
+  }
 
   useEffect(() => {
     const controller = new AbortController();
@@ -200,6 +218,23 @@ function UsageReport() {
               </div>
             </div>
           ))
+        )}
+      </div>
+
+      <div className="mt-4">
+        <button
+          type="button"
+          className="btn btn-outline-secondary"
+          onClick={() => void handleExportPdf()}
+          disabled={isExporting}
+        >
+          {isExporting ? "Exporting..." : "Export to PDF"}
+        </button>
+
+        {exportError && (
+          <div className="alert alert-danger mt-3" role="alert">
+            Could not export the report: {exportError}
+          </div>
         )}
       </div>
     </>

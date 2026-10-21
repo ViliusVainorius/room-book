@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using RoomBook.Api.Configuration;
 using RoomBook.Api.DTOs;
 using RoomBook.Api.Resources;
 using RoomBook.Api.Services;
@@ -13,6 +15,8 @@ namespace RoomBook.Api.Controllers;
 public class RoomsController(
     RoomBookDbContext context,
     RoomUtilizationService utilizationService,
+    RoomUsageReportPdfService usageReportPdfService,
+    IOptions<UtilizationReportOptions> reportOptions,
     TimeProvider timeProvider) : ControllerBase
 {
     [HttpGet]
@@ -61,28 +65,70 @@ public class RoomsController(
             .ToListAsync();
 
         return Ok(rooms);
-    }
-
-    [HttpGet("utilization")]
+    }    [HttpGet("utilization")]
     public async Task<ActionResult<IReadOnlyList<RoomUtilizationDto>>>
         GetUtilization(
-        [FromQuery] DateTime? from,
-        [FromQuery] DateTime? to)
+            [FromQuery] DateTime? from,
+            [FromQuery] DateTime? to)
     {
-        var reportEnd = to ?? timeProvider.GetUtcNow().UtcDateTime;
-        var reportStart = from ?? reportEnd.AddDays(-30);
+        var window = ResolveReportWindow(from, to);
 
-        if (reportStart >= reportEnd)
+        if (window is null)
         {
             return BadRequest(new ApiErrorResponse(
                 "INVALID_DATE_RANGE",
                 Strings.INVALID_DATE_RANGE));
         }
 
+        var (reportStart, reportEnd) = window.Value;
+
         var result = await utilizationService.GetUtilizationAsync(
             reportStart,
             reportEnd);
 
         return Ok(result);
+    }
+
+    [HttpGet("utilization/export")]
+    public async Task<IActionResult> ExportUtilization(
+        [FromQuery] DateTime? from,
+        [FromQuery] DateTime? to)
+    {
+        var window = ResolveReportWindow(from, to);
+
+        if (window is null)
+        {
+            return BadRequest(new ApiErrorResponse(
+                "INVALID_DATE_RANGE",
+                Strings.INVALID_DATE_RANGE));
+        }
+
+        var (reportStart, reportEnd) = window.Value;
+
+        var report = await utilizationService.GetUtilizationAsync(
+            reportStart,
+            reportEnd);
+
+        var pdf = usageReportPdfService.Generate(
+            report,
+            reportStart,
+            reportEnd,
+            timeProvider.GetUtcNow().UtcDateTime);
+
+        return File(pdf, "application/pdf", "room-usage-report.pdf");
+    }
+
+    // Both utilization endpoints default to the configured window
+    // (UtilizationReport:DefaultWindowDays in appsettings.json) when the
+    // caller passes no range.
+    private (DateTime Start, DateTime End)? ResolveReportWindow(
+        DateTime? from,
+        DateTime? to)
+    {
+        var reportEnd = to ?? timeProvider.GetUtcNow().UtcDateTime;
+        var reportStart = from ??
+            reportEnd.AddDays(-reportOptions.Value.DefaultWindowDays);
+
+        return reportStart < reportEnd ? (reportStart, reportEnd) : null;
     }
 }
