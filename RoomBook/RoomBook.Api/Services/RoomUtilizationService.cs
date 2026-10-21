@@ -59,9 +59,18 @@ public class RoomUtilizationService(RoomBookDbContext context)
 
             var actualHours = completedReservations.Sum(reservation =>
             {
+                // if reservation completed by default without calling /complete.
                 if (reservation.ActualStartDateTime is not DateTime actualStart ||
-                    reservation.ActualEndDateTime is not DateTime actualEnd ||
-                    actualEnd <= actualStart)
+                    reservation.ActualEndDateTime is not DateTime actualEnd)
+                {
+                    return GetOverlappingHours(
+                        reservation.StartDateTime,
+                        reservation.EndDateTime,
+                        from,
+                        to);
+                }
+
+                if (actualEnd <= actualStart)
                 {
                     return 0d;
                 }

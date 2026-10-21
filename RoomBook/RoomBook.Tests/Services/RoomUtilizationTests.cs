@@ -123,6 +123,68 @@ public class RoomUtilizationTests
     }
 
     [Fact]
+    public async Task GetUtilizationAsync_CompletedWithoutActualDates_CountsScheduledHours()
+    {
+        var (context, _) = CreateSut();
+        using (context)
+        {
+            // A meeting that finished without anyone calling the complete
+            // endpoint: it is Completed but carries no actual timestamps.
+            // It must count as fully used, not as zero usage.
+            context.Reservations.Add(new Reservation
+            {
+                RoomId = 1,
+                OrganizerId = 1,
+                Title = "Closed Without Actuals",
+                StartDateTime = Now.AddHours(-2),
+                EndDateTime = Now.AddHours(-1),
+                AttendeesCount = 3,
+                Status = ReservationStatus.Completed
+            });
+
+            await context.SaveChangesAsync();
+
+            var report = await GetReportAsync(context);
+            var room = report.Single(r => r.RoomId == 1);
+
+            room.ScheduledHours.Should().Be(1);
+            room.ActualHours.Should().Be(1);
+            room.UsagePercentage.Should().Be(100);
+        }
+    }
+
+    [Fact]
+    public async Task GetUtilizationAsync_CompletedWithOnlyOneActualDate_CountsScheduledHours()
+    {
+        var (context, _) = CreateSut();
+        using (context)
+        {
+            // Half-recorded actuals (start without end) are as unusable as
+            // none at all, so the scheduled interval is the fallback.
+            context.Reservations.Add(new Reservation
+            {
+                RoomId = 1,
+                OrganizerId = 1,
+                Title = "Half Recorded",
+                StartDateTime = Now.AddHours(-2),
+                EndDateTime = Now.AddHours(-1),
+                ActualStartDateTime = Now.AddHours(-2),
+                AttendeesCount = 3,
+                Status = ReservationStatus.Completed
+            });
+
+            await context.SaveChangesAsync();
+
+            var report = await GetReportAsync(context);
+            var room = report.Single(r => r.RoomId == 1);
+
+            room.ScheduledHours.Should().Be(1);
+            room.ActualHours.Should().Be(1);
+            room.UsagePercentage.Should().Be(100);
+        }
+    }
+
+    [Fact]
     public async Task GetUtilizationAsync_BookedButNeverHeld_CountsWithZeroUsage()
     {
         var (context, _) = CreateSut();
