@@ -1,6 +1,5 @@
 using FluentAssertions;
 using RoomBook.Domain.Models;
-using RoomBook.Unit.Tests.Testing;
 using Xunit;
 using static RoomBook.Unit.Tests.Testing.ReservationTestData;
 
@@ -11,6 +10,7 @@ public class CompleteReservationTests
     [Fact]
     public async Task CompleteAsync_StartedMeeting_RecordsActualEndTime()
     {
+        // Arrange
         var (context, service) = CreateSut();
         using (context)
         {
@@ -28,8 +28,10 @@ public class CompleteReservationTests
             context.Reservations.Add(reservation);
             await context.SaveChangesAsync();
 
+            // Act
             var result = await service.CompleteAsync(reservation.Id);
 
+            // Assert
             result.IsSuccess.Should().BeTrue();
             result.Reservation!.Status.Should()
                 .Be(ReservationStatus.Completed);
@@ -191,9 +193,7 @@ public class CompleteReservationTests
     [Fact]
     public async Task CompleteAsync_AfterScheduledEnd_ClampsUsageToBookedRange()
     {
-        // A booked reservation nobody ended: completing it after the
-        // scheduled end must record the booked window, not "now" (which
-        // could be hours or days later and would inflate usage).
+        // Arrange
         var (context, service) = CreateSut();
         using (context)
         {
@@ -234,11 +234,14 @@ public class CompleteReservationTests
     [Fact]
     public async Task CompleteAsync_UnknownReservation_ReturnsNotFound()
     {
+        // Arrange
         var (context, service) = CreateSut();
         using (context)
         {
+            // Act
             var result = await service.CompleteAsync(999);
 
+            // Assert
             result.IsSuccess.Should().BeFalse();
             result.ErrorCode.Should().Be("RESERVATION_NOT_FOUND");
         }
@@ -247,6 +250,7 @@ public class CompleteReservationTests
     [Fact]
     public async Task CompleteAsync_CancelledReservation_ReturnsNotBooked()
     {
+        // Arrange
         var (context, service) = CreateSut();
         using (context)
         {
@@ -264,8 +268,10 @@ public class CompleteReservationTests
             context.Reservations.Add(reservation);
             await context.SaveChangesAsync();
 
+            // Act
             var result = await service.CompleteAsync(reservation.Id);
 
+            // Assert
             result.IsSuccess.Should().BeFalse();
             result.ErrorCode.Should()
                 .Be("COMPLETE_RESERVATION_NOT_BOOKED");

@@ -22,8 +22,6 @@ public class RoomUtilizationService(RoomBookDbContext context)
             .OrderBy(room => room.Id)
             .ToListAsync();
 
-        // Retrieve reservations whose scheduled intervals overlap
-        // the reporting period.
         var reservations = await context.Reservations
             .AsNoTracking()
             .Where(reservation =>
@@ -49,7 +47,6 @@ public class RoomUtilizationService(RoomBookDbContext context)
                     reservation.Status == ReservationStatus.Cancelled)
                 .ToList();
 
-            // Compare scheduled and actual time for completed meetings only.
             var scheduledHours = completedReservations.Sum(reservation =>
                 GetOverlappingHours(
                     reservation.StartDateTime,
@@ -59,7 +56,6 @@ public class RoomUtilizationService(RoomBookDbContext context)
 
             var actualHours = completedReservations.Sum(reservation =>
             {
-                // if reservation completed by default without calling /complete.
                 if (reservation.ActualStartDateTime is not DateTime actualStart ||
                     reservation.ActualEndDateTime is not DateTime actualEnd)
                 {

@@ -29,7 +29,7 @@ public class ReservationsController
         {
             return BadRequest(new ApiErrorResponse(
                 "INVALID_DATE_RANGE",
-                "Start date must be before or equal to end date."));
+                Strings.INVALID_TIME_RANGE));
         }
 
         var query = context.Reservations.AsQueryable();
@@ -52,7 +52,6 @@ public class ReservationsController
                 reservation => reservation.Status == status.Value);
         }
 
-        // Return reservations that overlap the requested date range.
         if (startDate.HasValue)
         {
             query = query.Where(
@@ -148,9 +147,6 @@ public class ReservationsController
             : BadRequest(error);
     }
 
-    // The projection must stay inside the IQueryable so EF can
-    // translate it; calling a helper on the materialized entity would
-    // hit null Room/Organizer navigations.
     private IQueryable<ReservationDto> WithDetails(
         IQueryable<Reservation> reservations) =>
         reservations.Select(reservation => new ReservationDto(

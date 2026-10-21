@@ -71,7 +71,6 @@ using (var scope = app.Services.CreateScope())
     await DbInitializer.SeedAsync(context);
 }
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -86,6 +85,4 @@ app.MapControllers();
 
 app.Run();
 
-// Makes the entry point visible to WebApplicationFactory-based
-// integration tests.
 public partial class Program;

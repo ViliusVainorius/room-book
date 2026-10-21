@@ -1,6 +1,5 @@
 using FluentAssertions;
 using RoomBook.Domain.Models;
-using RoomBook.Unit.Tests.Testing;
 using Xunit;
 using static RoomBook.Unit.Tests.Testing.ReservationTestData;
 
@@ -129,11 +128,14 @@ public class StartReservationTests
     [Fact]
     public async Task StartAsync_UnknownReservation_ReturnsNotFound()
     {
+        // Arrange
         var (context, service) = CreateSut();
         using (context)
         {
+            // Act
             var result = await service.StartAsync(999);
 
+            // Assert
             result.IsSuccess.Should().BeFalse();
             result.ErrorCode.Should().Be("RESERVATION_NOT_FOUND");
         }
@@ -142,6 +144,7 @@ public class StartReservationTests
     [Fact]
     public async Task StartAsync_CancelledReservation_ReturnsNotBooked()
     {
+        // Arrange
         var (context, service) = CreateSut();
         using (context)
         {
@@ -159,8 +162,10 @@ public class StartReservationTests
             context.Reservations.Add(reservation);
             await context.SaveChangesAsync();
 
+            // Act
             var result = await service.StartAsync(reservation.Id);
 
+            // Assert
             result.IsSuccess.Should().BeFalse();
             result.ErrorCode.Should().Be("START_RESERVATION_NOT_BOOKED");
         }

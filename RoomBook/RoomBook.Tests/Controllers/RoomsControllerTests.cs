@@ -23,7 +23,6 @@ public class RoomsControllerTests
 
         var context = new RoomBookDbContext(options);
 
-        // Mirrors the application seed data.
         context.Rooms.AddRange(
             new Room
             {
@@ -259,11 +258,9 @@ public class RoomsControllerTests
     [Fact]
     public async Task GetUtilization_NoDateRange_UsesConfiguredDefaultWindow()
     {
-        // A 7-day default window instead of the standard 30.
         var (controller, context) = CreateSut(defaultWindowDays: 7);
         using (context)
         {
-            // Completed 10 days ago: outside the configured window.
             context.Reservations.Add(new Reservation
             {
                 RoomId = 1,
@@ -275,7 +272,6 @@ public class RoomsControllerTests
                 Status = ReservationStatus.Completed
             });
 
-            // Completed 2 days ago: inside the configured window.
             context.Reservations.Add(new Reservation
             {
                 RoomId = 1,
@@ -299,7 +295,6 @@ public class RoomsControllerTests
 
             var roomA = report.Single(r => r.RoomId == 1);
 
-            // Only the recent meeting is inside the 7-day window.
             roomA.ScheduledHours.Should().Be(1);
         }
     }
@@ -318,7 +313,6 @@ public class RoomsControllerTests
             file.ContentType.Should().Be("application/pdf");
             file.FileDownloadName.Should().Be("room-usage-report.pdf");
 
-            // A PDF document starts with the %PDF magic bytes.
             file.FileContents.Should().NotBeEmpty();
             file.FileContents.Take(4)
                 .Should().Equal((byte)'%', (byte)'P', (byte)'D', (byte)'F');

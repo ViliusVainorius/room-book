@@ -13,10 +13,10 @@ export type RoomUtilization = {
   usagePercentage: number | null;
 };
 
-export async function getRooms(signal?: AbortSignal): Promise<Room[]> {
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
-  const response = await fetch(`${API_BASE_URL}/api/rooms`, {
+export async function getRooms(signal?: AbortSignal): Promise<Room[]> {
+  const response = await fetch(`${apiUrl}/api/rooms`, {
     signal,
   });
 
@@ -27,15 +27,10 @@ export async function getRooms(signal?: AbortSignal): Promise<Room[]> {
   return (await response.json()) as Room[];
 }
 
-// Called without a date range: the backend then reports its default window
-// (the last 30 days), which covers all seeded data. A from/to filter can be
-// added to the page later without changing this function's shape.
 export async function getUtilization(
   signal?: AbortSignal,
 ): Promise<RoomUtilization[]> {
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-  const response = await fetch(`${API_BASE_URL}/api/rooms/utilization`, {
+  const response = await fetch(`${apiUrl}/api/rooms/utilization`, {
     signal,
   });
 
@@ -48,12 +43,8 @@ export async function getUtilization(
   return (await response.json()) as RoomUtilization[];
 }
 
-// The PDF is rendered by the backend from the same utilization data, so
-// the browser only downloads and saves the returned file.
 export async function downloadUtilizationReportPdf(): Promise<void> {
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-  const response = await fetch(`${API_BASE_URL}/api/rooms/utilization/export`);
+  const response = await fetch(`${apiUrl}/api/rooms/utilization/export`);
 
   if (!response.ok) {
     throw new Error(

@@ -19,7 +19,6 @@ function Users() {
         const data = await getUsers(controller.signal);
         setUsers(data);
       } catch (err) {
-        // Ignore errors caused by cancelling the request.
         if (controller.signal.aborted) {
           return;
         }

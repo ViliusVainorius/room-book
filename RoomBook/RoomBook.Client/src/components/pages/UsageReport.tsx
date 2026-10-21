@@ -5,8 +5,6 @@ import {
   type RoomUtilization,
 } from "../api/roomsApi";
 
-// "Booked but rarely used": a room where half or less of the scheduled
-// time was actually used is flagged for review.
 const LOW_USAGE_PERCENT = 50;
 
 function formatHours(hours: number): string {
@@ -61,7 +59,6 @@ function UsageReport() {
         const data = await getUtilization(controller.signal);
         setReport(data);
       } catch (err) {
-        // Ignore errors caused by cancelling the request.
         if (controller.signal.aborted) {
           return;
         }
@@ -100,8 +97,6 @@ function UsageReport() {
     );
   }
 
-  // The endpoint has already calculated hours and percentages per room;
-  // these are only display totals for the summary cards.
   const totalCompleted = report.reduce(
     (sum, room) => sum + room.completedReservationsCount,
     0,
@@ -115,16 +110,12 @@ function UsageReport() {
     0,
   );
 
-  // Both bars are scaled against the same maximum, so bar lengths are
-  // comparable between rooms.
   const maxBookedHours = Math.max(
     0,
     ...report.map((room) => room.scheduledHours),
   );
   const widthOf = (hours: number) =>
-    maxBookedHours > 0
-      ? Math.min((hours / maxBookedHours) * 100, 100)
-      : 0;
+    maxBookedHours > 0 ? Math.min((hours / maxBookedHours) * 100, 100) : 0;
 
   const roomsToReview = report.filter(
     (room) =>
@@ -153,9 +144,7 @@ function UsageReport() {
               <span className="fw-semibold">
                 {room.roomName}
                 {!room.isActive && (
-                  <span className="badge text-bg-secondary ms-2">
-                    Inactive
-                  </span>
+                  <span className="badge text-bg-secondary ms-2">Inactive</span>
                 )}
               </span>
               <span className="text-secondary small">
@@ -212,9 +201,7 @@ function UsageReport() {
                     {formatHours(room.actualHours)} used.
                   </div>
                 </div>
-                <span className="badge text-bg-danger">
-                  Low actual usage
-                </span>
+                <span className="badge text-bg-danger">Low actual usage</span>
               </div>
             </div>
           ))

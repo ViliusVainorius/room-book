@@ -8,11 +8,6 @@ using RoomBook.Infrastructure.Context;
 
 namespace RoomBook.Unit.Tests.Testing;
 
-/// <summary>
-/// Shared arrangement for <see cref="ReservationService"/> tests:
-/// a fresh in-memory database with two users and three rooms
-/// (one inactive), a fixed clock and a valid baseline request.
-/// </summary>
 internal static class ReservationTestData
 {
     public static readonly DateTime Now =

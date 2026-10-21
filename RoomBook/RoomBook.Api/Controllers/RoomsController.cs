@@ -41,10 +41,6 @@ public class RoomsController(
 
         if (equipment is { Count: > 0 })
         {
-            // A room must provide every selected equipment item,
-            // e.g. ?equipment=Projector&equipment=VideoConferencing.
-            // One filter per item keeps the expression translatable
-            // by EF (All(...) over a collection property is not).
             foreach (var requiredItem in equipment.Distinct())
             {
                 var item = requiredItem;
@@ -118,9 +114,6 @@ public class RoomsController(
         return File(pdf, "application/pdf", "room-usage-report.pdf");
     }
 
-    // Both utilization endpoints default to the configured window
-    // (UtilizationReport:DefaultWindowDays in appsettings.json) when the
-    // caller passes no range.
     private (DateTime Start, DateTime End)? ResolveReportWindow(
         DateTime? from,
         DateTime? to)

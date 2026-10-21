@@ -110,12 +110,6 @@ public class ReservationService
         return ReservationResult.Success(reservation);
     }
 
-    /// <summary>
-    /// Ends a meeting early. A booked meeting counts as underway once
-    /// its scheduled start is strictly in the past; if it was never
-    /// started explicitly, the scheduled start is recorded as the
-    /// actual start so the usage report keeps realistic durations.
-    /// </summary>
     public async Task<ReservationResult> CompleteAsync(int id)
     {
         var reservation = await _context.Reservations
@@ -139,8 +133,6 @@ public class ReservationService
 
         if (reservation.ActualStartDateTime.HasValue)
         {
-            // Guard against clock anomalies: the meeting cannot end
-            // before it actually started.
             if (now < reservation.ActualStartDateTime.Value)
             {
                 return ReservationResult.Failure(
@@ -150,10 +142,6 @@ public class ReservationService
         }
         else
         {
-            // Ending a meeting requires it to have run, so its
-            // scheduled start must be strictly in the past; ending
-            // at the exact start instant would be a zero-length
-            // meeting.
             if (now <= reservation.StartDateTime)
             {
                 return ReservationResult.Failure(
@@ -164,12 +152,6 @@ public class ReservationService
             reservation.ActualStartDateTime = reservation.StartDateTime;
         }
 
-        // Completing while the meeting is still running records a real
-        // early finish (actual end = now). Once the scheduled end has
-        // passed, the meeting already happened as booked, so the usage is
-        // clamped to the booked range instead of inflating to the moment
-        // the button was pressed — which could be hours or days later for
-        // a reservation nobody ended.
         reservation.ActualEndDateTime =
             now < reservation.EndDateTime
                 ? now

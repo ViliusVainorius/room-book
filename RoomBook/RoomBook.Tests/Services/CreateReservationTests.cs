@@ -12,11 +12,14 @@ public class CreateReservationTests
     [Fact]
     public async Task CreateAsync_ValidRequest_CreatesReservation()
     {
+        // Arrange
         var (context, service) = CreateSut();
         using (context)
         {
+            // Act
             var result = await service.CreateAsync(ValidRequest());
 
+            // Assert
             result.IsSuccess.Should().BeTrue();
             result.Reservation!.Status
                 .Should().Be(ReservationStatus.Booked);
@@ -29,6 +32,7 @@ public class CreateReservationTests
     [Fact]
     public async Task CreateAsync_EndBeforeStart_ReturnsInvalidTimeRange()
     {
+        // Arrange
         var (context, service) = CreateSut();
         using (context)
         {
@@ -37,8 +41,10 @@ public class CreateReservationTests
                 EndDateTime = Now.AddDays(1)
             };
 
+            // Act
             var result = await service.CreateAsync(request);
 
+            // Assert
             result.ErrorCode.Should().Be("INVALID_TIME_RANGE");
         }
     }
@@ -46,6 +52,7 @@ public class CreateReservationTests
     [Fact]
     public async Task CreateAsync_StartInPast_ReturnsStartNotInFuture()
     {
+        // Arrange
         var (context, service) = CreateSut();
         using (context)
         {
@@ -55,8 +62,10 @@ public class CreateReservationTests
                 EndDateTime = Now.AddHours(1)
             };
 
+            // Act
             var result = await service.CreateAsync(request);
 
+            // Assert
             result.ErrorCode.Should().Be("START_NOT_IN_FUTURE");
         }
     }
@@ -64,6 +73,7 @@ public class CreateReservationTests
     [Fact]
     public async Task CreateAsync_DurationExactlySevenDays_Succeeds()
     {
+        // Arrange
         var (context, service) = CreateSut();
         using (context)
         {
@@ -73,8 +83,10 @@ public class CreateReservationTests
                 EndDateTime = Now.AddDays(8)
             };
 
+            // Act
             var result = await service.CreateAsync(request);
 
+            // Assert
             result.IsSuccess.Should().BeTrue();
         }
     }
@@ -82,6 +94,7 @@ public class CreateReservationTests
     [Fact]
     public async Task CreateAsync_DurationOverSevenDays_Fails()
     {
+        // Arrange
         var (context, service) = CreateSut();
         using (context)
         {
@@ -91,8 +104,10 @@ public class CreateReservationTests
                 EndDateTime = Now.AddDays(8).AddSeconds(1)
             };
 
+            // Act
             var result = await service.CreateAsync(request);
 
+            // Assert
             result.ErrorCode.Should().Be("MAX_DURATION_EXCEEDED");
         }
     }
@@ -100,6 +115,7 @@ public class CreateReservationTests
     [Fact]
     public async Task CreateAsync_StartBeyondBookingHorizon_Fails()
     {
+        // Arrange
         var (context, service) = CreateSut();
         using (context)
         {
@@ -109,8 +125,10 @@ public class CreateReservationTests
                 EndDateTime = Now.AddDays(91).AddHours(1)
             };
 
+            // Act
             var result = await service.CreateAsync(request);
 
+            // Assert
             result.ErrorCode.Should().Be("BOOKING_HORIZON_EXCEEDED");
         }
     }
@@ -118,6 +136,7 @@ public class CreateReservationTests
     [Fact]
     public async Task CreateAsync_AttendeesExceedCapacity_Fails()
     {
+        // Arrange
         var (context, service) = CreateSut();
         using (context)
         {
@@ -126,8 +145,10 @@ public class CreateReservationTests
                 AttendeesCount = 5
             };
 
+            // Act
             var result = await service.CreateAsync(request);
 
+            // Assert
             result.ErrorCode.Should().Be("ROOM_CAPACITY_EXCEEDED");
         }
     }
@@ -135,6 +156,7 @@ public class CreateReservationTests
     [Fact]
     public async Task CreateAsync_InactiveRoom_Fails()
     {
+        // Arrange
         var (context, service) = CreateSut();
         using (context)
         {
@@ -143,8 +165,10 @@ public class CreateReservationTests
                 RoomId = 3
             };
 
+            // Act
             var result = await service.CreateAsync(request);
 
+            // Assert
             result.ErrorCode.Should().Be("ROOM_INACTIVE");
         }
     }
@@ -152,6 +176,7 @@ public class CreateReservationTests
     [Fact]
     public async Task CreateAsync_OverlappingRoomBooking_Fails()
     {
+        // Arrange
         var (context, service) = CreateSut();
         using (context)
         {
@@ -170,8 +195,10 @@ public class CreateReservationTests
 
             await context.SaveChangesAsync();
 
+            // Act
             var result = await service.CreateAsync(request);
 
+            // Assert
             result.ErrorCode.Should().Be("ROOM_BOOKING_CONFLICT");
         }
     }
@@ -179,6 +206,7 @@ public class CreateReservationTests
     [Fact]
     public async Task CreateAsync_OrganizerAlreadyBooked_Fails()
     {
+        // Arrange
         var (context, service) = CreateSut();
         using (context)
         {
@@ -197,8 +225,10 @@ public class CreateReservationTests
 
             await context.SaveChangesAsync();
 
+            // Act
             var result = await service.CreateAsync(request);
 
+            // Assert
             result.ErrorCode.Should().Be("ORGANIZER_BOOKING_CONFLICT");
         }
     }
@@ -206,6 +236,7 @@ public class CreateReservationTests
     [Fact]
     public async Task CreateAsync_CancelledReservationDoesNotBlockRoom_Succeeds()
     {
+        // Arrange
         var (context, service) = CreateSut();
         using (context)
         {
@@ -224,8 +255,10 @@ public class CreateReservationTests
 
             await context.SaveChangesAsync();
 
+            // Act
             var result = await service.CreateAsync(request);
 
+            // Assert
             result.IsSuccess.Should().BeTrue();
         }
     }
@@ -233,6 +266,7 @@ public class CreateReservationTests
     [Fact]
     public async Task CreateAsync_StartExactlyAtBookingHorizon_Succeeds()
     {
+        // Arrange
         var (context, service) = CreateSut();
         using (context)
         {
@@ -243,8 +277,10 @@ public class CreateReservationTests
                 EndDateTime = Now.AddDays(90).AddHours(1)
             };
 
+            // Act
             var result = await service.CreateAsync(request);
 
+            // Assert
             result.IsSuccess.Should().BeTrue();
         }
     }
@@ -252,6 +288,7 @@ public class CreateReservationTests
     [Fact]
     public async Task CreateAsync_AttendeesEqualToCapacity_Succeeds()
     {
+        // Arrange
         var (context, service) = CreateSut();
         using (context)
         {
@@ -261,8 +298,10 @@ public class CreateReservationTests
                 AttendeesCount = 4
             };
 
+            // Act
             var result = await service.CreateAsync(request);
 
+            // Assert
             result.IsSuccess.Should().BeTrue();
         }
     }
@@ -270,6 +309,7 @@ public class CreateReservationTests
     [Fact]
     public async Task CreateAsync_BackToBackRoomBookings_Succeeds()
     {
+        // Arrange
         var (context, service) = CreateSut();
         using (context)
         {
@@ -288,8 +328,10 @@ public class CreateReservationTests
 
             await context.SaveChangesAsync();
 
+            // Act
             var result = await service.CreateAsync(request);
 
+            // Assert
             result.IsSuccess.Should().BeTrue();
         }
     }
@@ -297,6 +339,7 @@ public class CreateReservationTests
     [Fact]
     public async Task CreateAsync_BackToBackOrganizerBookings_Succeeds()
     {
+        // Arrange
         var (context, service) = CreateSut();
         using (context)
         {
@@ -317,8 +360,10 @@ public class CreateReservationTests
 
             await context.SaveChangesAsync();
 
+            // Act
             var result = await service.CreateAsync(request);
 
+            // Assert
             result.IsSuccess.Should().BeTrue();
         }
     }
@@ -326,6 +371,7 @@ public class CreateReservationTests
     [Fact]
     public async Task CreateAsync_UnknownRoom_ReturnsRoomNotFound()
     {
+        // Arrange
         var (context, service) = CreateSut();
         using (context)
         {
@@ -334,8 +380,10 @@ public class CreateReservationTests
                 RoomId = 999
             };
 
+            // Act
             var result = await service.CreateAsync(request);
 
+            // Assert
             result.ErrorCode.Should().Be("ROOM_NOT_FOUND");
         }
     }
@@ -343,6 +391,7 @@ public class CreateReservationTests
     [Fact]
     public async Task CreateAsync_UnknownOrganizer_ReturnsOrganizerNotFound()
     {
+        // Arrange
         var (context, service) = CreateSut();
         using (context)
         {
@@ -351,8 +400,10 @@ public class CreateReservationTests
                 OrganizerId = 999
             };
 
+            // Act
             var result = await service.CreateAsync(request);
 
+            // Assert
             result.ErrorCode.Should().Be("ORGANIZER_NOT_FOUND");
         }
     }

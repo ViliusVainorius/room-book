@@ -135,7 +135,6 @@ public static class DbInitializer
                 },
                 new()
                 {
-                    // Cancelled meeting
                     RoomId = roomB.Id,
                     OrganizerId = jonas.Id,
                     Title = "Cancelled Weekly Sync",

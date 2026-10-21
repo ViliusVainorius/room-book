@@ -1,10 +1,8 @@
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using RoomBook.Api.DTOs;
 using RoomBook.Api.Services;
 using RoomBook.Domain.Models;
 using RoomBook.Infrastructure.Context;
-using RoomBook.Unit.Tests.Testing;
 using Xunit;
 using static RoomBook.Unit.Tests.Testing.ReservationTestData;
 
@@ -32,7 +30,6 @@ public class RoomUtilizationTests
         var (context, _) = CreateSut();
         using (context)
         {
-            // One scheduled hour, but the meeting only ran 20 minutes.
             context.Reservations.Add(new Reservation
             {
                 RoomId = 1,
@@ -66,7 +63,6 @@ public class RoomUtilizationTests
         var (context, _) = CreateSut();
         using (context)
         {
-            // Spans two days, but the window only covers the last 24 hours.
             context.Reservations.Add(new Reservation
             {
                 RoomId = 1,
@@ -128,9 +124,6 @@ public class RoomUtilizationTests
         var (context, _) = CreateSut();
         using (context)
         {
-            // A meeting that finished without anyone calling the complete
-            // endpoint: it is Completed but carries no actual timestamps.
-            // It must count as fully used, not as zero usage.
             context.Reservations.Add(new Reservation
             {
                 RoomId = 1,
@@ -159,8 +152,6 @@ public class RoomUtilizationTests
         var (context, _) = CreateSut();
         using (context)
         {
-            // Half-recorded actuals (start without end) are as unusable as
-            // none at all, so the scheduled interval is the fallback.
             context.Reservations.Add(new Reservation
             {
                 RoomId = 1,
@@ -190,7 +181,6 @@ public class RoomUtilizationTests
         var (context, _) = CreateSut();
         using (context)
         {
-            // A no-show: booked inside the window, never started.
             context.Reservations.Add(new Reservation
             {
                 RoomId = 1,

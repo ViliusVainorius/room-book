@@ -2,10 +2,6 @@ import type { Reservation } from "../constants/ReservationType";
 
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
-// The API stores and compares UTC instants (seed data is UTC too), while
-// "datetime-local" inputs give us local wall-clock strings without an
-// offset. Send real instants so validation, completion and date filters
-// all line up with the server clock.
 function toUtcIso(localDateTime: string): string {
   const parsed = new Date(localDateTime);
 

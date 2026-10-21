@@ -90,12 +90,9 @@ function Reservations() {
 
       setSuccessMessage(successMessage);
 
-      // Keep the active filters and the unfiltered room/organizer options.
       await refreshReservations(lastRequestedFilters);
     } catch (err) {
-      setActionError(
-        err instanceof Error ? err.message : fallbackErrorMessage,
-      );
+      setActionError(err instanceof Error ? err.message : fallbackErrorMessage);
     } finally {
       setPendingAction(null);
     }
@@ -111,10 +108,7 @@ function Reservations() {
     );
   }
 
-  function handleComplete(
-    reservation: Reservation,
-    mode: CompletionMode,
-  ) {
+  function handleComplete(reservation: Reservation, mode: CompletionMode) {
     const successMessage =
       mode === "end-early"
         ? `Meeting "${reservation.title}" was ended early.`

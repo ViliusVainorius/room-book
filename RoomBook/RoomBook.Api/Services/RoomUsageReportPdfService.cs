@@ -6,19 +6,12 @@ using RoomBook.Api.DTOs;
 
 namespace RoomBook.Api.Services;
 
-/// <summary>
-/// Renders the room usage report as a PDF straight from the utilization
-/// data, so the export does not depend on the front end's rendering.
-/// </summary>
 public class RoomUsageReportPdfService
 {
-    // Matches the front end's "rooms to review" rule: a room is flagged
-    // when half or less of its booked time was actually used.
     private const double LowUsagePercentThreshold = 50;
 
     static RoomUsageReportPdfService()
     {
-        // QuestPDF is free for small teams under the Community license.
         QuestPDF.Settings.License = LicenseType.Community;
     }
 
@@ -76,7 +69,6 @@ public class RoomUsageReportPdfService
                 var actualHours = rooms.Sum(room => room.ActualHours);
                 var roomsToReview = GetRoomsToReview(rooms);
 
-                // Summary numbers: two rows of two stats each.
                 column.Item().Row(row =>
                 {
                     ComposeStat(
@@ -193,8 +185,6 @@ public class RoomUsageReportPdfService
                     $"usage ratio ({Math.Round(room.UsagePercentage!.Value)}%). " +
                     "Its booking patterns may warrant further review."));
 
-    // Invariant culture keeps the report's numbers stable regardless of
-    // the server's locale ("1.5 h", not "1,5 h").
     private static string FormatHours(double hours) =>
         $"{hours.ToString("0.#", CultureInfo.InvariantCulture)} h";
 

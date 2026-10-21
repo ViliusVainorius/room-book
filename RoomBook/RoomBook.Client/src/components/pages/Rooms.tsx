@@ -23,7 +23,6 @@ function Rooms() {
         const data = await getRooms(controller.signal);
         setRooms(data);
       } catch (err) {
-        // Ignore errors caused by cancelling the request.
         if (controller.signal.aborted) {
           return;
         }
