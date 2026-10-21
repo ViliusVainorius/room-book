@@ -189,9 +189,11 @@ public class CompleteReservationTests
     }
 
     [Fact]
-    public async Task CompleteAsync_AfterScheduledEnd_CompletesAndRecordsOverrun()
+    public async Task CompleteAsync_AfterScheduledEnd_ClampsUsageToBookedRange()
     {
-        // Arrange
+        // A booked reservation nobody ended: completing it after the
+        // scheduled end must record the booked window, not "now" (which
+        // could be hours or days later and would inflate usage).
         var (context, service) = CreateSut();
         using (context)
         {
@@ -216,9 +218,16 @@ public class CompleteReservationTests
             result.IsSuccess.Should().BeTrue();
             result.Reservation!.Status.Should().Be(ReservationStatus.Completed);
 
-            result.Reservation.ActualEndDateTime.Should().Be(Now);
+            result.Reservation.ActualStartDateTime.Should()
+                .Be(reservation.StartDateTime);
             result.Reservation.ActualEndDateTime.Should()
-                .BeAfter(reservation.EndDateTime);
+                .Be(reservation.EndDateTime);
+
+            var actualDuration =
+                result.Reservation.ActualEndDateTime!.Value -
+                result.Reservation.ActualStartDateTime!.Value;
+
+            actualDuration.Should().Be(TimeSpan.FromHours(1));
         }
     }
 

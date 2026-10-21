@@ -4,7 +4,9 @@ import {
   completeReservation,
   type ReservationFilters,
 } from "../api/reservationsApi";
-import ReservationsTable from "../tables/ReservationsTable";
+import ReservationsTable, {
+  type CompletionMode,
+} from "../tables/ReservationsTable";
 import type { ReservationStatus } from "../constants/ReservationStatus";
 import type { Reservation } from "../constants/ReservationType";
 import ReservationFiltersPanel from "../filters/ReservationFiltersPanel";
@@ -109,13 +111,21 @@ function Reservations() {
     );
   }
 
-  function handleComplete(reservation: Reservation) {
+  function handleComplete(
+    reservation: Reservation,
+    mode: CompletionMode,
+  ) {
+    const successMessage =
+      mode === "end-early"
+        ? `Meeting "${reservation.title}" was ended early.`
+        : `Meeting "${reservation.title}" was completed.`;
+
     void runReservationAction(
       reservation,
       "complete",
       () => completeReservation(reservation.id),
-      `Meeting "${reservation.title}" was ended early.`,
-      "Failed to end the meeting. Please try again.",
+      successMessage,
+      "Failed to complete the meeting. Please try again.",
     );
   }
 

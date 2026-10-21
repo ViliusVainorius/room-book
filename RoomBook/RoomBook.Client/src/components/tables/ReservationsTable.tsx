@@ -6,10 +6,15 @@ import ReservationStatusBadge from "../ReservationStatusBadge";
 type ReservationsTableProps = {
   reservations: Reservation[];
   onCancel: (reservation: Reservation) => void;
-  onComplete: (reservation: Reservation) => void;
+  onComplete: (reservation: Reservation, mode: CompletionMode) => void;
   cancellingReservationId: number | null;
   completingReservationId: number | null;
 };
+
+// How a still-booked reservation can be completed:
+// "end-early" while the meeting is running, "complete" once its
+// scheduled time has passed and nobody cancelled it.
+export type CompletionMode = "end-early" | "complete";
 
 // Keeps the End early visibility correct when a meeting starts while the
 // page is already open, without re-rendering on every frame.
@@ -30,13 +35,32 @@ function useCurrentTime() {
   return currentTime;
 }
 
-function isMeetingUnderway(reservation: Reservation, currentTime: number) {
-  // Mirrors the backend rule: a booked meeting may be ended once its
-  // scheduled start is strictly in the past.
-  return (
-    reservation.status === Status.Booked &&
-    new Date(reservation.startDateTime).getTime() < currentTime
-  );
+function getCompletionMode(
+  reservation: Reservation,
+  currentTime: number,
+): CompletionMode | null {
+  if (reservation.status !== Status.Booked) {
+    return null;
+  }
+
+  const startTime = new Date(reservation.startDateTime).getTime();
+  const endTime = new Date(reservation.endDateTime).getTime();
+
+  // Not started yet — nothing to complete.
+  if (currentTime <= startTime) {
+    return null;
+  }
+
+  // Running now: finish it for real (usage shorter than booked).
+  if (currentTime < endTime) {
+    return "end-early";
+  }
+
+  // Scheduled time has passed but nobody cancelled it: complete it as
+  // booked. The backend clamps usage to the booked range, so this can no
+  // longer inflate usage to "now" (a stale no-show would otherwise log
+  // every hour since it was scheduled).
+  return "complete";
 }
 
 function ReservationsTable({
@@ -68,8 +92,11 @@ function ReservationsTable({
       </thead>
 
       <tbody>
-        {reservations.map((reservation) => (
-          <tr key={reservation.id}>
+        {reservations.map((reservation) => {
+          const completionMode = getCompletionMode(reservation, currentTime);
+
+          return (
+            <tr key={reservation.id}>
             <td>{reservation.title}</td>
             <td>{reservation.roomName}</td>
             <td>
@@ -97,17 +124,25 @@ function ReservationsTable({
             </td>
             <td className="text-end">
               <div className="d-flex gap-2 justify-content-end">
-                {isMeetingUnderway(reservation, currentTime) && (
+                {completionMode && (
                   <button
                     type="button"
                     className="btn btn-success btn-sm"
-                    aria-label={`End meeting early ${reservation.title}`}
-                    onClick={() => onComplete(reservation)}
+                    aria-label={
+                      completionMode === "end-early"
+                        ? `End meeting early ${reservation.title}`
+                        : `Complete reservation ${reservation.title}`
+                    }
+                    onClick={() => onComplete(reservation, completionMode)}
                     disabled={isActionPending}
                   >
                     {completingReservationId === reservation.id
-                      ? "Ending..."
-                      : "End early"}
+                      ? completionMode === "end-early"
+                        ? "Ending..."
+                        : "Completing..."
+                      : completionMode === "end-early"
+                        ? "End early"
+                        : "Complete"}
                   </button>
                 )}
 
@@ -127,7 +162,8 @@ function ReservationsTable({
               </div>
             </td>
           </tr>
-        ))}
+          );
+        })}
       </tbody>
     </table>
   );

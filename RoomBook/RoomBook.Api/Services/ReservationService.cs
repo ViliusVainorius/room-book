@@ -164,7 +164,17 @@ public class ReservationService
             reservation.ActualStartDateTime = reservation.StartDateTime;
         }
 
-        reservation.ActualEndDateTime = now;
+        // Completing while the meeting is still running records a real
+        // early finish (actual end = now). Once the scheduled end has
+        // passed, the meeting already happened as booked, so the usage is
+        // clamped to the booked range instead of inflating to the moment
+        // the button was pressed — which could be hours or days later for
+        // a reservation nobody ended.
+        reservation.ActualEndDateTime =
+            now < reservation.EndDateTime
+                ? now
+                : reservation.EndDateTime;
+
         reservation.Status = ReservationStatus.Completed;
 
         await _context.SaveChangesAsync();

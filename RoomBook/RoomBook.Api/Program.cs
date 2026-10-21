@@ -8,16 +8,12 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
-// Single error contract: booking-rule failures and model validation
-// both surface as { code, message } for the front end.
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.InvalidModelStateResponseFactory = context =>
@@ -42,7 +38,6 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     };
 });
 
-// The React front end runs on its own origin during development.
 builder.Services.AddCors(options =>
     options.AddPolicy("Frontend", policy => policy
         .AllowAnyOrigin()

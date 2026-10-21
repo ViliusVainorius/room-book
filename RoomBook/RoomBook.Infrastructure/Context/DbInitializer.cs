@@ -124,11 +124,10 @@ public static class DbInitializer
                 },
                                 new()
                 {
-                    // Ran 30 of its 60 scheduled minutes: the usage
-                    // report shows 50% for this room.
+                    // Ran full hour of the scheduled time.
                     RoomId = roomA.Id,
                     OrganizerId = austeja.Id,
-                    Title = "Previous Team Meeting",
+                    Title = "Monthly Team Meeting",
                     StartDateTime = now.AddDays(-30).Date.AddHours(10),
                     EndDateTime = now.AddDays(-30).Date.AddHours(11),
                     AttendeesCount = 3,
@@ -136,7 +135,7 @@ public static class DbInitializer
                 },
                 new()
                 {
-                    // Cancelled meetings do not block the room.
+                    // Cancelled meeting
                     RoomId = roomB.Id,
                     OrganizerId = jonas.Id,
                     Title = "Cancelled Weekly Sync",
@@ -147,8 +146,6 @@ public static class DbInitializer
                 },
                 new()
                 {
-                    // No-show: booked but never held, so the usage
-                    // report shows booked time with zero actual use.
                     RoomId = roomB.Id,
                     OrganizerId = austeja.Id,
                     Title = "Never Held Meeting",
