@@ -1,4 +1,4 @@
-# RoomBook — Meeting Room Booking Application
+# RoomBook - Meeting Room Booking Application
 
 ## Overview
 
@@ -20,17 +20,17 @@ The repository contains the whole stack: the ASP.NET Core API in
 
 ## Features
 
-- **Rooms** — view meeting rooms and filter them by capacity, floor and
+- **Rooms** - view meeting rooms and filter them by capacity, floor and
   equipment.
-- **Users** — view users and their active reservation counts.
-- **Reservations** — view and filter reservations, create bookings, cancel
+- **Users** - view users and their active reservation counts.
+- **Reservations** - view and filter reservations, create bookings, cancel
   reservations, and complete meetings or end them early.
-- **Booking validation** — server-side validation.
-- **Room utilization report** — compare scheduled meeting time with actual
+- **Booking validation** - server-side validation.
+- **Room utilization report** - compare scheduled meeting time with actual
   meeting duration and identify rooms that are frequently booked but
   relatively little used.
-- **PDF export** — export the room utilization report as a PDF document.
-- **In-memory database** — seed initial data automatically when the
+- **PDF export** - export the room utilization report as a PDF document.
+- **In-memory database** - seed initial data automatically when the
   application starts.
 
 ## How to Run the Application
@@ -55,7 +55,7 @@ The default launch profile listens on `http://localhost:5271`; pass
 Alternatively, open `RoomBook/RoomBook.slnx` in Visual Studio and run the API
 project using HTTPS.
 
-In the Development environment Swagger is enabled — open `/swagger` on the
+In the Development environment Swagger is enabled - open `/swagger` on the
 API URL to explore and test the available endpoints.
 
 ### Frontend
@@ -70,7 +70,7 @@ npm run dev
 
 Open the local URL printed by Vite in the terminal.
 
-The client has no fallback API address — it reads `VITE_API_BASE_URL` from
+The client has no fallback API address - it reads `VITE_API_BASE_URL` from
 the environment, so point it at the API you started. Create
 `RoomBook/RoomBook.Client/.env.local`:
 
@@ -115,16 +115,16 @@ passes no `from`/`to`, the report covers the last `DefaultWindowDays` days
 
 ## Architecture
 
-- `RoomBook.Domain` — entities and enums, no dependencies
-- `RoomBook.Infrastructure` — `DbContext`, mappings, seed data
-- `RoomBook.Api` — controllers, DTOs, booking-rule services, configuration
-- `RoomBook.Tests` — unit tests for the services and controllers
+- `RoomBook.Domain` - entities and enums, no dependencies
+- `RoomBook.Infrastructure` - `DbContext`, mappings, seed data
+- `RoomBook.Api` - controllers, DTOs, booking-rule services, configuration
+- `RoomBook.Tests` - unit tests for the services and controllers
 
 ## API
 
 | Method | Route | Notes |
 |---|---|---|
-| GET | `/api/rooms` | Filters: `minCapacity`, `floor`, `equipment` (repeat the parameter for multiple items — a room must have **all** of them) |
+| GET | `/api/rooms` | Filters: `minCapacity`, `floor`, `equipment` (repeat the parameter for multiple items - a room must have **all** of them) |
 | GET | `/api/rooms/utilization` | Usage report; optional `from`/`to` (defaults to the last 30 days) |
 | GET | `/api/rooms/utilization/export` | Same window as above; returns the report as a downloadable PDF |
 | GET | `/api/users` | Includes each user's active (booked) reservation count |
@@ -135,7 +135,7 @@ passes no `from`/`to`, the report covers the last `DefaultWindowDays` days
 | PATCH | `/api/reservations/{id}/complete` | Ends a meeting: while it is running, records the real finish time; once the scheduled end has passed, records the booked end so usage never exceeds the booked window (implicit start once the scheduled start has passed) |
 | PATCH | `/api/reservations/{id}/cancel` | Cancelled reservations stop blocking the room |
 
-All errors — booking-rule violations and model validation alike — use one
+All errors - booking-rule violations and model validation alike - use one
 contract:
 
 ```json
