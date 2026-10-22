@@ -131,7 +131,6 @@ passes no `from`/`to`, the report covers the last `DefaultWindowDays` days
 | GET | `/api/reservations` | Filters: `roomId`, `organizerId`, `status`, `startDate`, `endDate` (overlap semantics) |
 | GET | `/api/reservations/{id}` | Single reservation, including room and organizer names |
 | POST | `/api/reservations` | Validated against booking rules R1–R7 |
-| PATCH | `/api/reservations/{id}/start` | Records the actual meeting start |
 | PATCH | `/api/reservations/{id}/complete` | Ends a meeting: while it is running, records the real finish time; once the scheduled end has passed, records the booked end so usage never exceeds the booked window (implicit start once the scheduled start has passed) |
 | PATCH | `/api/reservations/{id}/cancel` | Cancelled reservations stop blocking the room |
 

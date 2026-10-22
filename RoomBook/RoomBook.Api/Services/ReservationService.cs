@@ -164,55 +164,6 @@ public class ReservationService
         return ReservationResult.Success(reservation);
     }
 
-    public async Task<ReservationResult> StartAsync(int id)
-    {
-        var reservation = await _context.Reservations
-            .FirstOrDefaultAsync(r => r.Id == id);
-
-        if (reservation is null)
-        {
-            return ReservationResult.Failure(
-                "RESERVATION_NOT_FOUND",
-                Strings.RESERVATION_NOT_FOUND);
-        }
-
-        if (reservation.Status != ReservationStatus.Booked)
-        {
-            return ReservationResult.Failure(
-                "START_RESERVATION_NOT_BOOKED",
-                Strings.START_RESERVATION_NOT_BOOKED);
-        }
-
-        if (reservation.ActualStartDateTime.HasValue)
-        {
-            return ReservationResult.Failure(
-                "MEETING_ALREADY_STARTED",
-                Strings.MEETING_ALREADY_STARTED);
-        }
-
-        var now = _timeProvider.GetUtcNow().UtcDateTime;
-
-        if (now < reservation.StartDateTime)
-        {
-            return ReservationResult.Failure(
-                "START_MEETING_NOT_STARTED",
-                Strings.START_MEETING_NOT_STARTED);
-        }
-
-        if (now >= reservation.EndDateTime)
-        {
-            return ReservationResult.Failure(
-                "START_MEETING_TIME_EXPIRED",
-                Strings.START_MEETING_TIME_EXPIRED);
-        }
-
-        reservation.ActualStartDateTime = now;
-
-        await _context.SaveChangesAsync();
-
-        return ReservationResult.Success(reservation);
-    }
-
     // R1 maximum duration, R4 valid time range, R6 booking horizon.
     private ReservationResult? ValidateTiming(
         CreateReservationRequest request,

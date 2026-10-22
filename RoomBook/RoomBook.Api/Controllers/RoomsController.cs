@@ -61,11 +61,12 @@ public class RoomsController(
             .ToListAsync();
 
         return Ok(rooms);
-    }    [HttpGet("utilization")]
-    public async Task<ActionResult<IReadOnlyList<RoomUtilizationDto>>>
-        GetUtilization(
-            [FromQuery] DateTime? from,
-            [FromQuery] DateTime? to)
+    }    
+    
+    [HttpGet("utilization")]
+    public async Task<ActionResult<IReadOnlyList<RoomUtilizationDto>>>GetUtilization(
+        [FromQuery] DateTime? from,
+        [FromQuery] DateTime? to)
     {
         var window = ResolveReportWindow(from, to);
 

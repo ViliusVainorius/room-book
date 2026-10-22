@@ -126,16 +126,6 @@ public class ReservationsController
             : Failure(result);
     }
 
-    [HttpPatch("{id:int}/start")]
-    public async Task<ActionResult<ReservationDto>> StartReservation(int id)
-    {
-        var result = await reservationService.StartAsync(id);
-
-        return result.IsSuccess
-            ? await GetReservationById(id)
-            : Failure(result);
-    }
-
     private ActionResult Failure(ReservationResult result)
     {
         var error = new ApiErrorResponse(

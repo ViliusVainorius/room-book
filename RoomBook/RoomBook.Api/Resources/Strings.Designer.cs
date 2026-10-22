@@ -124,15 +124,6 @@ namespace RoomBook.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The meeting has already been started..
-        /// </summary>
-        public static string MEETING_ALREADY_STARTED {
-            get {
-                return ResourceManager.GetString("MEETING_ALREADY_STARTED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to A meeting cannot be completed before it starts..
         /// </summary>
         public static string MEETING_NOT_STARTED {
@@ -205,38 +196,11 @@ namespace RoomBook.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The scheduled meeting start time has not arrived..
-        /// </summary>
-        public static string START_MEETING_NOT_STARTED {
-            get {
-                return ResourceManager.GetString("START_MEETING_NOT_STARTED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The scheduled meeting period has already ended..
-        /// </summary>
-        public static string START_MEETING_TIME_EXPIRED {
-            get {
-                return ResourceManager.GetString("START_MEETING_TIME_EXPIRED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The reservation must start in the future..
         /// </summary>
         public static string START_NOT_IN_FUTURE {
             get {
                 return ResourceManager.GetString("START_NOT_IN_FUTURE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Only booked reservations can be started..
-        /// </summary>
-        public static string START_RESERVATION_NOT_BOOKED {
-            get {
-                return ResourceManager.GetString("START_RESERVATION_NOT_BOOKED", resourceCulture);
             }
         }
     }

@@ -159,18 +159,6 @@
   <data name="MEETING_NOT_STARTED" xml:space="preserve">
     <value>A meeting cannot be completed before it starts.</value>
   </data>
-  <data name="START_RESERVATION_NOT_BOOKED" xml:space="preserve">
-    <value>Only booked reservations can be started.</value>
-  </data>
-  <data name="MEETING_ALREADY_STARTED" xml:space="preserve">
-    <value>The meeting has already been started.</value>
-  </data>
-  <data name="START_MEETING_NOT_STARTED" xml:space="preserve">
-    <value>The scheduled meeting start time has not arrived.</value>
-  </data>
-  <data name="START_MEETING_TIME_EXPIRED" xml:space="preserve">
-    <value>The scheduled meeting period has already ended.</value>
-  </data>
   <data name="COMPLETE_MEETING_NOT_STARTED" xml:space="preserve">
     <value>The meeting must be started before it can be completed.</value>
   </data>
